@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "blog_backup": {
+      "title": "Blog Backup Snapshot",
+      "description": "Manual backup snapshot of the blog data containing articles, categories, comments, and subscribers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "articlesCount": { "type": "number" },
+        "categoriesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "subscribersCount": { "type": "number" },
+        "data": { "type": "object" }
+      },
+      "required": ["id", "timestamp", "createdAt", "articlesCount", "data"]
+    }
+  },
+  "firestore": {
+    "blog_backups": {
+      "entity": "blog_backup",
+      "description": "Collection of manual cloud backups created from the admin studio"
+    },
+    "blog_sync": {
+      "entity": "blog_backup",
+      "description": "Active snapshot document storing the latest manual cloud sync state"
+    }
+  }
+}

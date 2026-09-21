@@ -89,6 +89,9 @@ import {
   defaultAuthor 
 } from '../data/initialArticles';
 import { ShopifyHtmlEditor } from './ShopifyHtmlEditor';
+import { CloudSyncSection } from './CloudSyncSection';
+import { Cloud, CloudUpload } from 'lucide-react';
+import { BlogBackupData } from '../lib/cloudBackupService';
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -109,6 +112,7 @@ interface AdminModalProps {
   onLogin: (email: string, password: string) => boolean;
   onLogout: () => void;
   onPreviewArticle: (article: Article) => void;
+  onRestoreData?: (data: BlogBackupData) => void;
 }
 
 export const AdminModal: React.FC<AdminModalProps> = ({
@@ -130,6 +134,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   onLogin,
   onLogout,
   onPreviewArticle,
+  onRestoreData,
 }) => {
   // Auth state
   const [email, setEmail] = useState('stickyandkawaii@gmail.com');
@@ -137,7 +142,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const [loginError, setLoginError] = useState('');
   
   // Navigation tabs in studio
-  const [currentTab, setCurrentTab] = useState<'articles' | 'editor' | 'categories' | 'comments' | 'subscribers' | 'stats'>('articles');
+  const [currentTab, setCurrentTab] = useState<'articles' | 'editor' | 'categories' | 'comments' | 'subscribers' | 'stats' | 'cloud'>('articles');
   const [editorMode, setEditorMode] = useState<'create' | 'edit'>('create');
   const [activeArticleId, setActiveArticleId] = useState<string | null>(null);
 
@@ -1088,18 +1093,6 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
               </button>
 
               <button
-                onClick={handleNewArticle}
-                className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  currentTab === 'editor'
-                    ? 'bg-white text-[#4C2882] shadow-xs'
-                    : 'text-[#3D2E39] hover:text-[#4C2882]'
-                }`}
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Éditeur & SEO</span>
-              </button>
-
-              <button
                 onClick={() => setCurrentTab('categories')}
                 className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   currentTab === 'categories'
@@ -1197,6 +1190,14 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                   </div>
 
                   <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <button
+                      onClick={() => setCurrentTab('cloud')}
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-2xl bg-[#faf7fd] hover:bg-[#f4effc] border border-[#d8c7f3] text-[#4C2882] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      title="Accéder à la sauvegarde Cloud Firestore"
+                    >
+                      <CloudUpload className="w-4 h-4" />
+                      <span>Sauvegarder en Cloud</span>
+                    </button>
                     <button
                       onClick={handleNewArticle}
                       className="w-full sm:w-auto px-5 py-2.5 rounded-2xl bg-[#4C2882] hover:bg-[#3D206A] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -3197,6 +3198,40 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                     </button>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Cloud Backup & Sync Tab */}
+            {currentTab === 'cloud' && (
+              <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in">
+                {/* Cloud Header Bar */}
+                <div className="bg-white p-4 rounded-3xl border border-[#e5dbf7] flex items-center justify-between gap-4 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setCurrentTab('articles')}
+                      className="p-2 rounded-xl text-slate-400 hover:text-[#4C2882] hover:bg-[#f4f0fa] transition-colors cursor-pointer"
+                      title="Retour à la liste"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                      <h2 className="text-lg font-bold text-[#3D2E39] font-heading leading-tight">
+                        Espace Sauvegarde Cloud
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        Base de données Firestore distante
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <CloudSyncSection
+                  articles={articles}
+                  categories={categories}
+                  comments={comments}
+                  subscribers={subscribers}
+                  onRestoreData={onRestoreData}
+                />
               </div>
             )}
 

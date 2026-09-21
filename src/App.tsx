@@ -12,6 +12,8 @@ import { NewsletterSection } from './components/NewsletterSection';
 import { Article, Comment, Category, ReactionType, UserReactions, NewsletterSubscriber, CategoryItem, Poll, UserPollVotes } from './types';
 import { INITIAL_ARTICLES, INITIAL_COMMENTS, INITIAL_SUBSCRIBERS, INITIAL_CATEGORIES, INITIAL_POLLS } from './data/initialArticles';
 import { Sparkles, Compass, AlertCircle, BookOpen, Heart } from 'lucide-react';
+import { testFirestoreConnection } from './lib/firebase';
+import { BlogBackupData } from './lib/cloudBackupService';
 
 const STORAGE_KEYS = {
   ARTICLES: 'sticky_kawaii_blog_articles_v2',
@@ -126,6 +128,13 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
+
+  // Verify Firestore connection on startup (non-blocking)
+  useEffect(() => {
+    testFirestoreConnection().catch((err) => {
+      console.warn('Initial Firestore connectivity probe warning:', err);
+    });
+  }, []);
 
   // Navigation & View state
   const [activeArticleId, setActiveArticleId] = useState<string | null>(null);
@@ -549,6 +558,37 @@ export default function App() {
     setSubscribers((prev) => prev.filter((s) => s.id !== subscriberId));
   };
 
+  const handleRestoreData = (restored: BlogBackupData) => {
+    if (restored.articles && Array.isArray(restored.articles)) {
+      setArticles(restored.articles);
+      localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(restored.articles));
+    }
+    if (restored.categories && Array.isArray(restored.categories)) {
+      setCategories(restored.categories);
+      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(restored.categories));
+    }
+    if (restored.comments && Array.isArray(restored.comments)) {
+      setComments(restored.comments);
+      localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(restored.comments));
+    }
+    if (restored.subscribers && Array.isArray(restored.subscribers)) {
+      setSubscribers(restored.subscribers);
+      localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(restored.subscribers));
+    }
+    if (restored.polls && Array.isArray(restored.polls)) {
+      setPolls(restored.polls);
+      localStorage.setItem(STORAGE_KEYS.POLLS, JSON.stringify(restored.polls));
+    }
+    if (restored.userPollVotes && typeof restored.userPollVotes === 'object') {
+      setUserPollVotes(restored.userPollVotes);
+      localStorage.setItem(STORAGE_KEYS.USER_POLL_VOTES, JSON.stringify(restored.userPollVotes));
+    }
+    if (restored.userReactions && typeof restored.userReactions === 'object') {
+      setUserReactions(restored.userReactions);
+      localStorage.setItem(STORAGE_KEYS.USER_REACTIONS, JSON.stringify(restored.userReactions));
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f4f0fa] text-slate-800 font-['Nunito',sans-serif]">
       {/* Top Beige/Peach Announcement Banner */}
@@ -744,6 +784,7 @@ export default function App() {
         onLogin={handleAdminLogin}
         onLogout={handleAdminLogout}
         onPreviewArticle={handleOpenArticle}
+        onRestoreData={handleRestoreData}
       />
     </div>
   );

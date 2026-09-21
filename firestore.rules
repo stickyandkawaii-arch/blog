@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Manual cloud backups collection: created and loaded from Admin Studio
+    match /blog_backups/{backupId} {
+      // For collection queries (list), backupId variable does not exist at rule evaluation time
+      allow list: if true;
+      allow get: if isValidId(backupId);
+      allow create, update, delete: if isValidId(backupId);
+    }
+
+    // Active sync document: latest manual snapshot
+    match /blog_sync/{docId} {
+      allow list: if true;
+      allow get: if isValidId(docId);
+      allow create, update, delete: if isValidId(docId);
+    }
+
+    // Health check/connection test
+    match /test/{testId} {
+      allow list: if true;
+      allow get: if isValidId(testId);
+      allow create, update, delete: if isValidId(testId);
+    }
+  }
+}
