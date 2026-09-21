@@ -120,8 +120,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                 <div className="space-y-1">
                   <a
                     href="https://stickyandkawaii.eu/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#4C2882] bg-[#F7ECE3]/60 border border-[#ebdcd3] tracking-[0.05em] uppercase transition-colors"
                   >
                     <span>ACCUEIL</span>
@@ -130,8 +129,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
                   <a
                     href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors"
                   >
                     <span>NOUVEAUTÉS</span>
@@ -140,8 +138,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
                   <a
                     href="https://stickyandkawaii.eu/produits"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors"
                   >
                     <span>BOUTIQUE</span>
@@ -152,8 +149,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                   <div className="rounded-xl border border-purple-100 bg-[#faf7ff] p-2 space-y-1 mt-1">
                     <a
                       href="https://www.patreon.com/Stickyandkawaii62"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target="_parent"
                       className="flex items-center justify-between text-sm font-bold text-[#3D2E39] hover:text-[#4C2882] tracking-[0.05em] uppercase px-1 py-1"
                     >
                       <span>THE SNAIL'S GAZETTE</span>
@@ -162,8 +158,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                     <div className="pl-2.5 border-l-2 border-[#e5dbf7] space-y-1 mt-1">
                       <a
                         href="https://www.patreon.com/Stickyandkawaii62"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target="_parent"
                         className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
                       >
                         <Heart className="w-3 h-3 text-pink-500" />
@@ -171,8 +166,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                       </a>
                       <a
                         href="https://jeux.stickyandkawaii.eu/"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target="_parent"
                         className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
                       >
                         <Gamepad2 className="w-3 h-3 text-indigo-500" />
@@ -180,8 +174,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                       </a>
                       <a
                         href="https://www.patreon.com/Stickyandkawaii62/shop"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target="_parent"
                         className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
                       >
                         <Heart className="w-3 h-3 text-pink-500" />
@@ -204,8 +197,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
                   <a
                     href="https://stickyandkawaii.eu/contact"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors"
                   >
                     <span>ME CONTACTER</span>
@@ -266,8 +258,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                 <div className="space-y-2">
                   <a
                     href="https://stickyandkawaii.eu"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-3 rounded-xl bg-[#fff8fa] border border-pink-100 hover:border-pink-300 hover:bg-pink-50 transition-all text-pink-900 group"
                   >
                     <div className="flex items-center gap-2.5">
@@ -291,8 +282,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
                   <a
                     href="https://jeux.stickyandkawaii.eu"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between p-3 rounded-xl bg-[#f5f8ff] border border-indigo-100 hover:border-indigo-300 hover:bg-indigo-50 transition-all text-indigo-900 group"
                   >
                     <div className="flex items-center gap-2.5">

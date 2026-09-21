@@ -128,8 +128,7 @@ export const Header: React.FC<HeaderProps> = ({
             <a
               id="header-cart-icon-btn"
               href="https://stickyandkawaii.eu/produits"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_parent"
               className="p-1 text-[#3D2E39] hover:text-[#4C2882] transition-colors cursor-pointer"
               aria-label="Panier boutique"
               title="Boutique Sticky and kawaii"
@@ -196,8 +195,7 @@ export const Header: React.FC<HeaderProps> = ({
             <li className="relative">
               <a
                 href="https://stickyandkawaii.eu/"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_parent"
                 className="text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#4C2882]"
                 title="Accueil Sticky and kawaii"
               >
@@ -209,8 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
             <li>
               <a
                 href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_parent"
                 className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors"
                 title="Découvrir les nouveautés"
               >
@@ -228,8 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex items-center gap-1.5">
                 <a
                   href="https://stickyandkawaii.eu/produits"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_parent"
                   className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block"
                 >
                   BOUTIQUE
@@ -249,8 +245,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 w-48 bg-white rounded-xl border border-[#e5dbf7] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100 normal-case tracking-normal">
                   <a
                     href="https://stickyandkawaii.eu/produits"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Tous les produits</span>
@@ -258,8 +253,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </a>
                   <a
                     href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Nouveautés</span>
@@ -267,8 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </a>
                   <a
                     href="https://stickyandkawaii.eu/produits"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target="_parent"
                     className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Stickers & Papeterie</span>
@@ -288,8 +281,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="flex items-center gap-1.5">
                 <a
                   href="https://www.patreon.com/Stickyandkawaii62"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_parent"
                   className={`text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block ${
                     isGazetteDropdownOpen ? 'underline underline-offset-4 decoration-[#3D2E39]' : ''
                   }`}
@@ -317,8 +309,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* Sous-menu 1: S'abonner */}
                     <a
                       href="https://www.patreon.com/Stickyandkawaii62"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target="_parent"
                       className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
                     >
                       S'abonner
@@ -327,8 +318,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* Sous-menu 2: Salle de jeux */}
                     <a
                       href="https://jeux.stickyandkawaii.eu/"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target="_parent"
                       className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
                     >
                       Salle de jeux
@@ -337,8 +327,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* Sous-menu 3: Les anciens mois */}
                     <a
                       href="https://www.patreon.com/Stickyandkawaii62/shop"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      target="_parent"
                       className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
                     >
                       Les anciens mois
@@ -364,8 +353,7 @@ export const Header: React.FC<HeaderProps> = ({
             <li>
               <a
                 href="https://stickyandkawaii.eu/contact"
-                target="_blank"
-                rel="noopener noreferrer"
+                target="_parent"
                 className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors"
                 title="Contacter Sticky and kawaii"
               >

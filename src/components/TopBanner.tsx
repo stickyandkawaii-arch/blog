@@ -9,8 +9,7 @@ export const TopBanner: React.FC = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-center">
         <a
           href="https://www.patreon.com/cw/Stickyandkawaii62"
-          target="_blank"
-          rel="noopener noreferrer"
+          target="_parent"
           className="hover:underline transition-colors block text-center"
         >
           Abonne-toi pour la gazette de Septembre jusqu'au 30-09
