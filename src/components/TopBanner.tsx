@@ -4,7 +4,7 @@ export const TopBanner: React.FC = () => {
   return (
     <aside 
       id="announcement-banner"
-      className="bg-[#f8efe8] text-[#2c2320] border-b border-[#ebdcd3] px-4 py-1.5 text-[12px] sm:text-[13px] font-['Open_Sans',sans-serif] font-normal tracking-normal text-center relative z-40"
+      className="bg-[#F7ECE3] text-[#4A3B32] border-b border-[#ebdcd3] px-4 py-2 text-xs sm:text-sm font-normal tracking-normal text-center relative z-40 font-sans"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-center">
         <a

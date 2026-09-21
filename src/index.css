@@ -2,9 +2,9 @@
 
 @layer base {
   body {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f4f0fa;
-    color: #332d42;
+    color: #3D2E39;
   }
 
   h1, h2, h3, h4, h5, h6, .font-heading {

@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header 
       id="main-header"
-      className="bg-white sticky top-0 z-30 transition-all font-['Open_Sans',sans-serif]"
+      className="bg-white sticky top-0 z-30 transition-all font-sans"
     >
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center w-28">
             <button
               onClick={onOpenSidebar}
-              className="lg:hidden p-2 rounded-lg text-slate-800 hover:text-[#4a348b] hover:bg-[#f8efe8] transition-colors cursor-pointer"
+              className="lg:hidden p-2 rounded-lg text-[#3D2E39] hover:text-[#4C2882] hover:bg-[#F7ECE3] transition-colors cursor-pointer"
               aria-label="Ouvrir le menu mobile"
               title="Menu"
             >
@@ -110,14 +110,14 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Right Action Icons: Search & Cart (Identical to screenshot) */}
+          {/* Right Action Icons: Search & Cart */}
           <div className="flex items-center justify-end gap-4 sm:gap-5 w-28">
             
             {/* Search Icon */}
             <button
               id="header-search-icon-btn"
               onClick={handleToggleSearch}
-              className="p-1 text-slate-900 hover:text-[#4a348b] transition-colors cursor-pointer"
+              className="p-1 text-[#3D2E39] hover:text-[#4C2882] transition-colors cursor-pointer"
               aria-label="Rechercher"
               title="Rechercher dans le blog"
             >
@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
               href="https://stickyandkawaii.eu/produits"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1 text-slate-900 hover:text-[#4a348b] transition-colors cursor-pointer"
+              className="p-1 text-[#3D2E39] hover:text-[#4C2882] transition-colors cursor-pointer"
               aria-label="Panier boutique"
               title="Boutique Sticky and kawaii"
             >
@@ -142,13 +142,13 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onOpenAdmin}
               className={`p-1 rounded-md transition-colors cursor-pointer ${
                 isAdminLoggedIn 
-                  ? 'text-[#4a348b] hover:bg-purple-50' 
-                  : 'text-slate-300 hover:text-[#4a348b]'
+                  ? 'text-[#4C2882] hover:bg-purple-50' 
+                  : 'text-slate-300 hover:text-[#4C2882]'
               }`}
               title={isAdminLoggedIn ? 'Espace Auteur Connecté' : 'Administration'}
             >
               {isAdminLoggedIn ? (
-                <PenLine className="w-3.5 h-3.5 text-[#4a348b]" />
+                <PenLine className="w-3.5 h-3.5 text-[#4C2882]" />
               ) : (
                 <ShieldCheck className="w-3.5 h-3.5" />
               )}
@@ -176,7 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
                   });
                 }}
                 placeholder="Rechercher des articles, stickers, tutos..."
-                className="w-full pl-10 pr-9 py-2 rounded-lg bg-[#faf8fc] border border-[#e5dbf7] text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#4a348b]/30"
+                className="w-full pl-10 pr-9 py-2 rounded-lg bg-[#faf8fc] border border-[#e5dbf7] text-xs sm:text-sm text-[#3D2E39] placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#4C2882]/30"
               />
               <button
                 onClick={() => setIsSearchInputOpen(false)}
@@ -188,9 +188,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        {/* Horizontal Navigation Menu (Exact layout, typography & links from user screenshot) */}
+        {/* Horizontal Navigation Menu (Exact layout, typography & links from user specifications) */}
         <nav className="pt-2 pb-3 overflow-x-auto no-scrollbar">
-          <ul className="flex items-center justify-center gap-6 sm:gap-8 md:gap-11 lg:gap-14 whitespace-nowrap text-[12.5px] sm:text-[13px] font-bold uppercase tracking-wider font-['Open_Sans',sans-serif]">
+          <ul className="flex items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 whitespace-nowrap text-sm sm:text-base font-bold uppercase tracking-[0.05em] font-sans">
             
             {/* 1. ACCUEIL (active purple link with bottom underline bar) */}
             <li className="relative">
@@ -198,7 +198,7 @@ export const Header: React.FC<HeaderProps> = ({
                 href="https://stickyandkawaii.eu/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#4a348b] pb-1.5 inline-block font-bold tracking-wide relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#4a348b]"
+                className="text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#4C2882]"
                 title="Accueil Sticky and kawaii"
               >
                 ACCUEIL
@@ -211,10 +211,10 @@ export const Header: React.FC<HeaderProps> = ({
                 href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#1a1a1a] hover:text-[#4a348b] pb-1.5 inline-block font-bold tracking-wide transition-colors"
+                className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors"
                 title="Découvrir les nouveautés"
               >
-                NOUVEAUTES
+                NOUVEAUTÉS
               </a>
             </li>
 
@@ -225,22 +225,22 @@ export const Header: React.FC<HeaderProps> = ({
               onMouseEnter={() => setIsBoutiqueDropdownOpen(true)}
               onMouseLeave={() => setIsBoutiqueDropdownOpen(false)}
             >
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <a
                   href="https://stickyandkawaii.eu/produits"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#1a1a1a] hover:text-[#4a348b] pb-1.5 font-bold tracking-wide transition-colors inline-block"
+                  className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block"
                 >
                   BOUTIQUE
                 </a>
                 <button
                   type="button"
                   onClick={() => setIsBoutiqueDropdownOpen((prev) => !prev)}
-                  className="pb-1.5 text-[#1a1a1a] hover:text-[#4a348b] cursor-pointer flex items-center"
+                  className="pb-1.5 text-[#3D2E39] hover:text-[#4C2882] cursor-pointer flex items-center transition-colors"
                   aria-label="Menu Boutique"
                 >
-                  <ChevronDown className="w-3 h-3 stroke-[2.5]" />
+                  <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
 
@@ -251,7 +251,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://stickyandkawaii.eu/produits"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Tous les produits</span>
                     <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -260,7 +260,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Nouveautés</span>
                     <Sparkles className="w-3 h-3 text-amber-500" />
@@ -269,7 +269,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://stickyandkawaii.eu/produits"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <span>Stickers & Papeterie</span>
                     <Heart className="w-3 h-3 text-pink-500" />
@@ -285,22 +285,22 @@ export const Header: React.FC<HeaderProps> = ({
               onMouseEnter={() => setIsGazetteDropdownOpen(true)}
               onMouseLeave={() => setIsGazetteDropdownOpen(false)}
             >
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <a
                   href="https://www.patreon.com/Stickyandkawaii62"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#1a1a1a] hover:text-[#4a348b] pb-1.5 font-bold tracking-wide transition-colors inline-block"
+                  className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block"
                 >
                   THE SNAIL'S GAZETTE
                 </a>
                 <button
                   type="button"
                   onClick={() => setIsGazetteDropdownOpen((prev) => !prev)}
-                  className="pb-1.5 text-[#1a1a1a] hover:text-[#4a348b] cursor-pointer flex items-center"
+                  className="pb-1.5 text-[#3D2E39] hover:text-[#4C2882] cursor-pointer flex items-center transition-colors"
                   aria-label="Menu The Snail's Gazette"
                 >
-                  <ChevronDown className="w-3 h-3 stroke-[2.5]" />
+                  <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
               </div>
 
@@ -312,7 +312,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://www.patreon.com/Stickyandkawaii62"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <Heart className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                     <span>S'abonner</span>
@@ -324,7 +324,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://jeux.stickyandkawaii.eu/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <Gamepad2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                     <span>Salle de jeux</span>
@@ -336,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({
                     href="https://stickyandkawaii.eu/contact"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-slate-800 hover:bg-[#f8efe8] hover:text-[#4a348b] transition-colors"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
                   >
                     <Mail className="w-3.5 h-3.5 text-purple-500 shrink-0" />
                     <span>Me contacter</span>
@@ -352,7 +352,7 @@ export const Header: React.FC<HeaderProps> = ({
                 href="https://stickyandkawaii.eu/contact"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#1a1a1a] hover:text-[#4a348b] pb-1.5 inline-block font-bold tracking-wide transition-colors"
+                className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors"
                 title="Contacter Sticky and kawaii"
               >
                 ME CONTACTER
