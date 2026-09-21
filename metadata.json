@@ -1,0 +1,8 @@
+{
+  "name": "Sticky and Kawaii - Blog Officiel",
+  "description": "Le blog officiel de Sticky and Kawaii : coulisses de création de stickers, actualités de la boutique, tutoriels DIY et gazettes douces.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
