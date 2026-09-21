@@ -5,8 +5,6 @@ import {
   Home, 
   Sparkles, 
   ShoppingBag, 
-  BookOpen, 
-  Coffee, 
   Gamepad2, 
   ExternalLink, 
   ShieldCheck, 
@@ -14,12 +12,14 @@ import {
   Palette,
   ArrowRight
 } from 'lucide-react';
-import { Category } from '../types';
+import { Category, CategoryItem } from '../types';
+import { renderCategoryIcon, getCategoryColorConfig } from '../utils/categoryHelpers';
 import officialLogo from '../assets/images/sticky_and_kawaii_official_logo.png';
 
 interface SidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  categories: CategoryItem[];
   onSelectCategory: (category: Category | 'all') => void;
   selectedCategory: Category | 'all';
   onOpenAdmin: () => void;
@@ -29,37 +29,12 @@ interface SidebarDrawerProps {
 export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   isOpen,
   onClose,
+  categories,
   onSelectCategory,
   selectedCategory,
   onOpenAdmin,
   isAdminLoggedIn,
 }) => {
-  const categories: { name: Category; icon: React.ReactNode; color: string; desc: string }[] = [
-    {
-      name: 'Coulisses & Créations',
-      icon: <Palette className="w-4 h-4 text-purple-600" />,
-      color: 'bg-purple-100 text-purple-700 border-purple-200',
-      desc: 'Croquis, fabrication & secrets de stickers',
-    },
-    {
-      name: 'Actus Boutique',
-      icon: <ShoppingBag className="w-4 h-4 text-pink-600" />,
-      color: 'bg-pink-100 text-pink-700 border-pink-200',
-      desc: 'Nouveaux drops, packagings & cadeaux',
-    },
-    {
-      name: 'Tutoriels',
-      icon: <Sparkles className="w-4 h-4 text-amber-600" />,
-      color: 'bg-amber-100 text-amber-700 border-amber-200',
-      desc: 'Guides DIY, bullet journal & toploaders',
-    },
-    {
-      name: 'Gazettes',
-      icon: <Coffee className="w-4 h-4 text-emerald-600" />,
-      color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      desc: 'Moments cosy, playlists & inspirations',
-    },
-  ];
 
   return (
     <AnimatePresence>
@@ -204,16 +179,28 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                         <span>Salle de jeux</span>
                       </a>
                       <a
-                        href="https://stickyandkawaii.eu/contact"
+                        href="https://www.patreon.com/Stickyandkawaii62/shop"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
                       >
-                        <Palette className="w-3 h-3 text-purple-500" />
-                        <span>Me contacter</span>
+                        <Heart className="w-3 h-3 text-pink-500" />
+                        <span>Les anciens mois</span>
                       </a>
                     </div>
                   </div>
+
+                  {/* BLOG */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectCategory('all');
+                      onClose();
+                    }}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors text-left cursor-pointer"
+                  >
+                    <span>BLOG</span>
+                  </button>
 
                   <a
                     href="https://stickyandkawaii.eu/contact"
@@ -235,9 +222,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                 <div className="space-y-1.5">
                   {categories.map((cat) => {
                     const isSelected = selectedCategory === cat.name;
+                    const colorCfg = getCategoryColorConfig(cat.color);
                     return (
                       <button
-                        key={cat.name}
+                        key={cat.id || cat.name}
                         onClick={() => {
                           onSelectCategory(cat.name);
                           onClose();
@@ -250,16 +238,20 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2 font-semibold text-sm">
-                            {cat.icon}
+                            <span className={colorCfg.text}>
+                              {renderCategoryIcon(cat.icon, 'w-4 h-4')}
+                            </span>
                             <span>{cat.name}</span>
                           </div>
                           {isSelected && (
                             <span className="w-2 h-2 rounded-full bg-[#7c3aed]" />
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1 pl-6">
-                          {cat.desc}
-                        </p>
+                        {cat.description && (
+                          <p className="text-[11px] text-slate-500 mt-1 pl-6">
+                            {cat.description}
+                          </p>
+                        )}
                       </button>
                     );
                   })}
@@ -329,7 +321,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                 <div className="flex items-start gap-2.5">
                   <Heart className="w-4 h-4 text-[#a86224] shrink-0 mt-0.5 fill-[#a86224]/20" />
                   <div className="text-xs">
-                    <p className="font-bold">Le mot de Sticky ✨</p>
+                    <p className="font-bold">Le mot de Karine ✨</p>
                     <p className="text-[11px] text-[#7a4e27] mt-0.5 leading-relaxed">
                       Chaque article est rédigé avec tendresse pour partager notre amour des stickers mignons et des loisirs créatifs !
                     </p>

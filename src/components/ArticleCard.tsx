@@ -11,8 +11,8 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   article,
   onReadArticle,
 }) => {
-  const getCategoryStyles = (category: Category) => {
-    switch (category) {
+  const getCategoryStyles = (categoryName: string) => {
+    switch (categoryName) {
       case 'Coulisses & Créations':
         return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'Actus Boutique':
@@ -21,8 +21,25 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
         return 'bg-amber-100 text-amber-800 border-amber-200';
       case 'Gazettes':
         return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      default:
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+      default: {
+        // Deterministic pastel color for custom categories
+        const palettes = [
+          'bg-purple-100 text-purple-700 border-purple-200',
+          'bg-pink-100 text-pink-700 border-pink-200',
+          'bg-amber-100 text-amber-800 border-amber-200',
+          'bg-emerald-100 text-emerald-800 border-emerald-200',
+          'bg-rose-100 text-rose-700 border-rose-200',
+          'bg-indigo-100 text-indigo-700 border-indigo-200',
+          'bg-sky-100 text-sky-800 border-sky-200',
+          'bg-teal-100 text-teal-800 border-teal-200',
+        ];
+        let hash = 0;
+        for (let i = 0; i < categoryName.length; i++) {
+          hash = categoryName.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % palettes.length;
+        return palettes[index];
+      }
     }
   };
 
@@ -52,6 +69,11 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           {article.status === 'draft' && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white shadow-xs">
               Brouillon
+            </span>
+          )}
+          {article.status === 'scheduled' && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white shadow-xs">
+              ⏰ Programmé
             </span>
           )}
         </div>

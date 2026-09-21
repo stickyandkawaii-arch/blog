@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header 
       id="main-header"
-      className="bg-white sticky top-0 z-30 transition-all font-sans"
+      className="bg-white sticky top-0 z-50 transition-all font-sans shadow-xs relative"
     >
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -189,8 +189,8 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Horizontal Navigation Menu (Exact layout, typography & links from user specifications) */}
-        <nav className="pt-2 pb-3 overflow-x-auto no-scrollbar">
-          <ul className="flex items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 whitespace-nowrap text-sm sm:text-base font-bold uppercase tracking-[0.05em] font-sans">
+        <nav className="pt-2 pb-3 relative z-30">
+          <ul className="flex flex-wrap items-center justify-center gap-5 sm:gap-7 md:gap-9 lg:gap-11 whitespace-nowrap text-sm sm:text-base font-bold uppercase tracking-[0.05em] font-sans">
             
             {/* 1. ACCUEIL (active purple link with bottom underline bar) */}
             <li className="relative">
@@ -246,7 +246,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Boutique Dropdown */}
               {isBoutiqueDropdownOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-48 bg-white rounded-lg border border-[#e5dbf7] shadow-lg p-2 z-50 animate-in fade-in zoom-in-95 duration-100 normal-case tracking-normal">
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 w-48 bg-white rounded-xl border border-[#e5dbf7] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100 normal-case tracking-normal">
                   <a
                     href="https://stickyandkawaii.eu/produits"
                     target="_blank"
@@ -290,7 +290,9 @@ export const Header: React.FC<HeaderProps> = ({
                   href="https://www.patreon.com/Stickyandkawaii62"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block"
+                  className={`text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block ${
+                    isGazetteDropdownOpen ? 'underline underline-offset-4 decoration-[#3D2E39]' : ''
+                  }`}
                 >
                   THE SNAIL'S GAZETTE
                 </a>
@@ -300,53 +302,65 @@ export const Header: React.FC<HeaderProps> = ({
                   className="pb-1.5 text-[#3D2E39] hover:text-[#4C2882] cursor-pointer flex items-center transition-colors"
                   aria-label="Menu The Snail's Gazette"
                 >
-                  <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${
+                      isGazetteDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
               </div>
 
-              {/* The 3 requested submenus */}
+              {/* Exact styling matching user screenshot: White background, subtle border, dividers between items */}
               {isGazetteDropdownOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-0.5 w-52 bg-white rounded-lg border border-[#e5dbf7] shadow-lg p-2 z-50 animate-in fade-in zoom-in-95 duration-100 normal-case tracking-normal">
-                  {/* Sous-menu 1: S'abonner */}
-                  <a
-                    href="https://www.patreon.com/Stickyandkawaii62"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <Heart className="w-3.5 h-3.5 text-pink-500 shrink-0" />
-                    <span>S'abonner</span>
-                    <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />
-                  </a>
+                <div className="absolute left-0 top-full mt-0 w-56 bg-white border border-[#e2e8f0] shadow-md z-50 animate-in fade-in duration-100 normal-case tracking-normal">
+                  <div className="flex flex-col divide-y divide-[#e2e8f0]">
+                    {/* Sous-menu 1: S'abonner */}
+                    <a
+                      href="https://www.patreon.com/Stickyandkawaii62"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      S'abonner
+                    </a>
 
-                  {/* Sous-menu 2: Salle de jeux */}
-                  <a
-                    href="https://jeux.stickyandkawaii.eu/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <Gamepad2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                    <span>Salle de jeux</span>
-                    <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />
-                  </a>
+                    {/* Sous-menu 2: Salle de jeux */}
+                    <a
+                      href="https://jeux.stickyandkawaii.eu/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      Salle de jeux
+                    </a>
 
-                  {/* Sous-menu 3: Me contacter */}
-                  <a
-                    href="https://stickyandkawaii.eu/contact"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                    <span>Me contacter</span>
-                    <ExternalLink className="w-3 h-3 ml-auto text-slate-400" />
-                  </a>
+                    {/* Sous-menu 3: Les anciens mois */}
+                    <a
+                      href="https://www.patreon.com/Stickyandkawaii62/shop"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      Les anciens mois
+                    </a>
+                  </div>
                 </div>
               )}
             </li>
 
-            {/* 5. ME CONTACTER */}
+            {/* 5. BLOG */}
+            <li>
+              <button
+                type="button"
+                onClick={onGoHome}
+                className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors cursor-pointer"
+                title="Blog Sticky and kawaii"
+              >
+                BLOG
+              </button>
+            </li>
+
+            {/* 6. ME CONTACTER */}
             <li>
               <a
                 href="https://stickyandkawaii.eu/contact"

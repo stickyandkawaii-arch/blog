@@ -7,25 +7,50 @@ import { FeaturedArticleHero } from './components/FeaturedArticleHero';
 import { ArticleCard } from './components/ArticleCard';
 import { ArticleView } from './components/ArticleView';
 import { AdminModal } from './components/AdminModal';
+import { NewsletterSection } from './components/NewsletterSection';
 
-import { Article, Comment, Category, ReactionType, UserReactions } from './types';
-import { INITIAL_ARTICLES, INITIAL_COMMENTS } from './data/initialArticles';
+import { Article, Comment, Category, ReactionType, UserReactions, NewsletterSubscriber, CategoryItem, Poll, UserPollVotes } from './types';
+import { INITIAL_ARTICLES, INITIAL_COMMENTS, INITIAL_SUBSCRIBERS, INITIAL_CATEGORIES, INITIAL_POLLS } from './data/initialArticles';
 import { Sparkles, Compass, AlertCircle, BookOpen, Heart } from 'lucide-react';
 
 const STORAGE_KEYS = {
-  ARTICLES: 'sticky_kawaii_blog_articles_v1',
-  COMMENTS: 'sticky_kawaii_blog_comments_v1',
-  USER_REACTIONS: 'sticky_kawaii_blog_user_reactions_v1',
-  ADMIN_AUTH: 'sticky_kawaii_blog_admin_auth_v1',
+  ARTICLES: 'sticky_kawaii_blog_articles_v2',
+  COMMENTS: 'sticky_kawaii_blog_comments_v2',
+  USER_REACTIONS: 'sticky_kawaii_blog_user_reactions_v2',
+  ADMIN_AUTH: 'sticky_kawaii_blog_admin_auth_v2',
+  SUBSCRIBERS: 'sticky_kawaii_blog_subscribers_v2',
+  CATEGORIES: 'sticky_kawaii_blog_categories_v2',
+  POLLS: 'sticky_kawaii_blog_polls_v2',
+  USER_POLL_VOTES: 'sticky_kawaii_blog_user_poll_votes_v2',
 };
 
 export default function App() {
+  // Categories state
+  const [categories, setCategories] = useState<CategoryItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load categories from storage', e);
+    }
+    return INITIAL_CATEGORIES;
+  });
+
   // Articles state
   const [articles, setArticles] = useState<Article[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ARTICLES);
       if (saved) {
-        return JSON.parse(saved);
+        const loaded: Article[] = JSON.parse(saved);
+        return loaded.map((art) => ({
+          ...art,
+          author: {
+            ...art.author,
+            name: art.author?.name === 'Sticky' ? 'Karine' : (art.author?.name || 'Karine'),
+          },
+        }));
       }
     } catch (e) {
       console.error('Failed to load articles from storage', e);
@@ -46,6 +71,19 @@ export default function App() {
     return INITIAL_COMMENTS;
   });
 
+  // Newsletter Subscribers state
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load subscribers from storage', e);
+    }
+    return INITIAL_SUBSCRIBERS;
+  });
+
   // User Reactions state
   const [userReactions, setUserReactions] = useState<UserReactions>(() => {
     try {
@@ -55,6 +93,31 @@ export default function App() {
       }
     } catch (e) {
       console.error('Failed to load user reactions', e);
+    }
+    return {};
+  });
+
+  // Polls state
+  const [polls, setPolls] = useState<Poll[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.POLLS);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load polls', e);
+    }
+    return INITIAL_POLLS;
+  });
+
+  const [userPollVotes, setUserPollVotes] = useState<UserPollVotes>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.USER_POLL_VOTES);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load user poll votes', e);
     }
     return {};
   });
@@ -92,16 +155,55 @@ export default function App() {
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(subscribers));
+    } catch (e) {
+      console.error('Failed to save subscribers to storage', e);
+    }
+  }, [subscribers]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem(STORAGE_KEYS.USER_REACTIONS, JSON.stringify(userReactions));
     } catch (e) {
       console.error('Failed to save reactions', e);
     }
   }, [userReactions]);
 
-  // Support hash navigation if present
   useEffect(() => {
-    const handleHash = () => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    } catch (e) {
+      console.error('Failed to save categories to storage', e);
+    }
+  }, [categories]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.POLLS, JSON.stringify(polls));
+    } catch (e) {
+      console.error('Failed to save polls', e);
+    }
+  }, [polls]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER_POLL_VOTES, JSON.stringify(userPollVotes));
+    } catch (e) {
+      console.error('Failed to save user poll votes', e);
+    }
+  }, [userPollVotes]);
+
+  // Support hash & query navigation if present
+  useEffect(() => {
+    const handleUrlState = () => {
       const hash = window.location.hash.replace('#', '');
+      const params = new URLSearchParams(window.location.search);
+
+      // Check admin trigger via URL
+      if (hash === 'admin' || params.get('admin') === 'true') {
+        setIsAdminModalOpen(true);
+      }
+
       if (hash.startsWith('article-')) {
         const id = hash.replace('article-', '');
         const target = articles.find((a) => a.id === id || a.slug === id);
@@ -112,31 +214,47 @@ export default function App() {
       }
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleUrlState();
+    window.addEventListener('hashchange', handleUrlState);
+    return () => window.removeEventListener('hashchange', handleUrlState);
   }, [articles]);
+
+  // Helper to determine if an article is publicly visible (published or scheduled date reached)
+  const isArticlePublic = (art: Article): boolean => {
+    if (art.status === 'draft') return false;
+    if (art.status === 'scheduled') {
+      if (!art.scheduledAt) return false;
+      const schedDate = new Date(art.scheduledAt).getTime();
+      return !isNaN(schedDate) && schedDate <= Date.now();
+    }
+    return art.status === 'published';
+  };
 
   // Read single article
   const currentArticle = useMemo(() => {
     if (!activeArticleId) return null;
-    return articles.find((a) => a.id === activeArticleId) || null;
-  }, [activeArticleId, articles]);
+    const found = articles.find((a) => a.id === activeArticleId) || null;
+    if (!found) return null;
+    if (!isArticlePublic(found) && !isAdminLoggedIn) {
+      return null;
+    }
+    return found;
+  }, [activeArticleId, articles, isAdminLoggedIn]);
 
-  // Featured article: first with featured:true and published, or first published article
+  // Featured article: first with featured:true and publicly available, or first public article
   const featuredArticle = useMemo(() => {
     return (
-      articles.find((a) => a.featured && a.status === 'published') ||
-      articles.find((a) => a.status === 'published') ||
-      articles[0]
+      articles.find((a) => a.featured && isArticlePublic(a)) ||
+      articles.find((a) => isArticlePublic(a)) ||
+      (isAdminLoggedIn ? articles[0] : undefined)
     );
-  }, [articles]);
+  }, [articles, isAdminLoggedIn]);
 
   // Filtered articles list
   const filteredArticles = useMemo(() => {
     return articles.filter((art) => {
-      // In reader mode, don't show drafts unless admin
-      if (art.status === 'draft' && !isAdminLoggedIn) return false;
+      // In reader mode, don't show drafts or unreached scheduled articles unless admin
+      if (!isArticlePublic(art) && !isAdminLoggedIn) return false;
 
       // Category filter
       if (selectedCategory !== 'all' && art.category !== selectedCategory) {
@@ -161,24 +279,26 @@ export default function App() {
 
   // Category counts
   const categoryCounts = useMemo(() => {
-    const counts: Record<Category | 'all', number> = {
+    const counts: Record<string, number> = {
       all: 0,
-      'Coulisses & Créations': 0,
-      'Actus Boutique': 0,
-      Tutoriels: 0,
-      Gazettes: 0,
     };
 
+    categories.forEach((c) => {
+      counts[c.name] = 0;
+    });
+
     articles.forEach((art) => {
-      if (art.status === 'draft' && !isAdminLoggedIn) return;
+      if (!isArticlePublic(art) && !isAdminLoggedIn) return;
       counts.all += 1;
       if (counts[art.category] !== undefined) {
         counts[art.category] += 1;
+      } else {
+        counts[art.category] = 1;
       }
     });
 
     return counts;
-  }, [articles, isAdminLoggedIn]);
+  }, [articles, categories, isAdminLoggedIn]);
 
   // Current article comments
   const currentComments = useMemo(() => {
@@ -190,9 +310,9 @@ export default function App() {
   const relatedArticles = useMemo(() => {
     if (!currentArticle) return [];
     return articles.filter(
-      (a) => a.id !== currentArticle.id && a.status === 'published'
+      (a) => a.id !== currentArticle.id && (isArticlePublic(a) || isAdminLoggedIn)
     );
-  }, [articles, currentArticle]);
+  }, [articles, currentArticle, isAdminLoggedIn]);
 
   // Handlers
   const handleOpenArticle = (article: Article) => {
@@ -263,9 +383,16 @@ export default function App() {
     setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
-  const handleAdminLogin = (password: string): boolean => {
-    // Master password as defined in project documentation
-    if (password === 'kawaii2026') {
+  const handleAdminLogin = (email: string, password: string): boolean => {
+    const validEmails = [
+      'stickyandkawaii@gmail.com', 
+      'admin@stickyandkawaii.eu', 
+      'contact@stickyandkawaii.eu'
+    ];
+    const cleanEmail = email.trim().toLowerCase();
+    
+    // Strict authentication: Email + Secure Master Password
+    if (validEmails.includes(cleanEmail) && password === '21Zero5zero2,.') {
       setIsAdminLoggedIn(true);
       localStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
       return true;
@@ -296,13 +423,130 @@ export default function App() {
     }
   };
 
+  const handleSaveCategory = (savedCategory: CategoryItem, oldName?: string) => {
+    setCategories((prev) => {
+      const exists = prev.some((c) => c.id === savedCategory.id);
+      if (exists) {
+        return prev.map((c) => (c.id === savedCategory.id ? savedCategory : c));
+      } else {
+        return [...prev, savedCategory];
+      }
+    });
+
+    // If category name was renamed, update existing articles with this category
+    if (oldName && oldName !== savedCategory.name) {
+      setArticles((prev) =>
+        prev.map((art) => (art.category === oldName ? { ...art, category: savedCategory.name } : art))
+      );
+      if (selectedCategory === oldName) {
+        setSelectedCategory(savedCategory.name);
+      }
+    }
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    const categoryToDelete = categories.find((c) => c.id === categoryId);
+    if (!categoryToDelete) return;
+
+    const remaining = categories.filter((c) => c.id !== categoryId);
+    const fallbackCategoryName = remaining.length > 0 ? remaining[0].name : 'Général';
+
+    setCategories(remaining);
+
+    // Reassign any articles using this category to fallback
+    setArticles((prev) =>
+      prev.map((art) =>
+        art.category === categoryToDelete.name ? { ...art, category: fallbackCategoryName } : art
+      )
+    );
+
+    if (selectedCategory === categoryToDelete.name) {
+      setSelectedCategory('all');
+    }
+  };
+
   const handleResetDefaults = () => {
     setArticles(INITIAL_ARTICLES);
     setComments(INITIAL_COMMENTS);
+    setSubscribers(INITIAL_SUBSCRIBERS);
+    setCategories(INITIAL_CATEGORIES);
+    setPolls(INITIAL_POLLS);
     setUserReactions({});
+    setUserPollVotes({});
     localStorage.removeItem(STORAGE_KEYS.ARTICLES);
     localStorage.removeItem(STORAGE_KEYS.COMMENTS);
+    localStorage.removeItem(STORAGE_KEYS.SUBSCRIBERS);
+    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+    localStorage.removeItem(STORAGE_KEYS.POLLS);
     localStorage.removeItem(STORAGE_KEYS.USER_REACTIONS);
+    localStorage.removeItem(STORAGE_KEYS.USER_POLL_VOTES);
+  };
+
+  const handleVote = (pollId: string, optionId: string) => {
+    // Check if user already voted in this poll
+    if (userPollVotes[pollId]) return;
+
+    setUserPollVotes((prev) => ({ ...prev, [pollId]: optionId }));
+
+    setPolls((prev) =>
+      prev.map((poll) => {
+        if (poll.id !== pollId) return poll;
+        const updatedOptions = poll.options.map((opt) =>
+          opt.id === optionId ? { ...opt, votes: opt.votes + 1 } : opt
+        );
+        return {
+          ...poll,
+          options: updatedOptions,
+          totalVotes: poll.totalVotes + 1,
+        };
+      })
+    );
+  };
+
+  const handleSubscribe = (newEmail: string): boolean => {
+    const cleanEmail = newEmail.trim().toLowerCase();
+    if (!cleanEmail) return false;
+
+    setSubscribers((prev) => {
+      const alreadyExists = prev.some((s) => s.email.toLowerCase() === cleanEmail);
+      if (alreadyExists) return prev;
+
+      const newSub: NewsletterSubscriber = {
+        id: `sub-${Date.now()}`,
+        email: cleanEmail,
+        subscribedAt: new Date().toISOString(),
+        source: 'Formulaire bas de page',
+      };
+      return [newSub, ...prev];
+    });
+    return true;
+  };
+
+  const handleAddSubscriber = (newEmail: string): boolean => {
+    const cleanEmail = newEmail.trim().toLowerCase();
+    if (!cleanEmail) return false;
+
+    let added = false;
+    setSubscribers((prev) => {
+      const alreadyExists = prev.some((s) => s.email.toLowerCase() === cleanEmail);
+      if (alreadyExists) {
+        added = false;
+        return prev;
+      }
+      added = true;
+      const newSub: NewsletterSubscriber = {
+        id: `sub-${Date.now()}`,
+        email: cleanEmail,
+        subscribedAt: new Date().toISOString(),
+        source: 'Ajout manuel (Studio)',
+      };
+      return [newSub, ...prev];
+    });
+    return added;
+  };
+
+  const handleDeleteSubscriber = (subscriberId: string) => {
+    setSubscribers((prev) => prev.filter((s) => s.id !== subscriberId));
   };
 
   return (
@@ -338,6 +582,7 @@ export default function App() {
           }
         }}
         selectedCategory={selectedCategory}
+        categories={categories}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
         isAdminLoggedIn={isAdminLoggedIn}
       />
@@ -350,6 +595,9 @@ export default function App() {
             article={currentArticle}
             comments={currentComments}
             userReactions={userReactions}
+            polls={polls}
+            userPollVotes={userPollVotes}
+            onVote={handleVote}
             onBack={handleBackToHome}
             onReact={handleReact}
             onAddComment={handleAddComment}
@@ -381,6 +629,7 @@ export default function App() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               counts={categoryCounts}
+              categories={categories}
             />
 
             {/* Section Heading */}
@@ -437,9 +686,43 @@ export default function App() {
               </div>
             )}
 
+            {/* Newsletter Subscription Block */}
+            <div className="mt-12 sm:mt-16">
+              <NewsletterSection onSubscribe={handleSubscribe} />
+            </div>
+
           </div>
         )}
       </main>
+
+      {/* Global Kawaii Footer */}
+      <footer className="bg-white border-t border-[#e5dbf7] py-8 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="font-['Comfortaa',cursive] font-bold text-[#3D2E39]">Sticky & Kawaii</span>
+            <span>•</span>
+            <span>Le Blog Officiel & Coulisses d'Atelier</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <a 
+              href="https://stickyandkawaii.eu" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#4C2882] font-semibold transition-colors"
+            >
+              Boutique Officielle
+            </a>
+            <span>•</span>
+            <button
+              onClick={() => setIsAdminModalOpen(true)}
+              className="hover:text-[#4C2882] transition-colors cursor-pointer"
+            >
+              {isAdminLoggedIn ? 'Studio Auteur' : 'Connexion Auteur'}
+            </button>
+          </div>
+        </div>
+      </footer>
 
       {/* Admin Modal & Article Editor */}
       <AdminModal
@@ -447,9 +730,15 @@ export default function App() {
         onClose={() => setIsAdminModalOpen(false)}
         articles={articles}
         comments={comments}
+        subscribers={subscribers}
+        categories={categories}
         onSaveArticle={handleSaveArticle}
         onDeleteArticle={handleDeleteArticle}
         onDeleteComment={handleDeleteComment}
+        onDeleteSubscriber={handleDeleteSubscriber}
+        onAddSubscriber={handleAddSubscriber}
+        onSaveCategory={handleSaveCategory}
+        onDeleteCategory={handleDeleteCategory}
         onResetDefaults={handleResetDefaults}
         isAdminLoggedIn={isAdminLoggedIn}
         onLogin={handleAdminLogin}

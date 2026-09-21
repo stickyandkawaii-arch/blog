@@ -1,4 +1,4 @@
-import { Article, Comment } from '../types';
+import { Article, Comment, NewsletterSubscriber, CategoryItem, Poll } from '../types';
 
 import officialLogo from '../assets/images/sticky_and_kawaii_official_logo.png';
 import featuredImg from '../assets/images/featured_stickers_art_1789967519218.jpg';
@@ -9,10 +9,35 @@ import gazetteImg from '../assets/images/gazette_tea_art_1789967572992.jpg';
 export { officialLogo as mascotImg, featuredImg, tutorialImg, boutiqueImg, gazetteImg };
 
 export const defaultAuthor = {
-  name: 'Sticky',
+  name: 'Karine',
   role: 'Créatrice & Illustratrice',
   avatar: officialLogo,
 };
+
+export const INITIAL_POLLS: Poll[] = [
+  {
+    id: 'poll-art-1',
+    articleId: 'art-1',
+    question: 'Quelle finition de sticker préférez-vous pour vos carnets ?',
+    options: [
+      { id: 'opt-1', text: 'Holographique scintillant ✨', votes: 124 },
+      { id: 'opt-2', text: 'Mat velouté waterproof 🍑', votes: 89 },
+      { id: 'opt-3', text: 'Dorure métallique or rose 👑', votes: 76 },
+    ],
+    totalVotes: 289,
+  },
+  {
+    id: 'poll-art-2',
+    articleId: 'art-2',
+    question: 'Quel est votre support de journaling favori ?',
+    options: [
+      { id: 'p2-opt-1', text: 'Carnet à pointillés (Dot Grid) 📖', votes: 156 },
+      { id: 'p2-opt-2', text: 'Classeur à anneaux transparent 📁', votes: 92 },
+      { id: 'p2-opt-3', text: 'Bloc-notes détachable kawaii 📝', votes: 64 },
+    ],
+    totalVotes: 312,
+  },
+];
 
 export const INITIAL_ARTICLES: Article[] = [
   {
@@ -33,6 +58,12 @@ export const INITIAL_ARTICLES: Article[] = [
       butterflies: 96,
     },
     tags: ['Stickers', 'Holographique', 'Coulisses', 'Procreate', 'Papeterie'],
+    seo: {
+      metaTitle: 'Dans les coulisses de l’atelier : stickers holographiques | Sticky',
+      metaDescription: 'Découvrez les étapes artisanales de création de nos stickers holographiques cosmétiques : croquis Procreate, vinyle waterproof et découpe précise.',
+      focusKeyword: 'stickers holographiques',
+      canonicalUrl: 'https://blog.stickyandkawaii.eu/#article-coulisses-creation-collection-holographique-cosmique',
+    },
     content: `
 Bienvenue dans mon petit cocon créatif ! ✨
 
@@ -51,7 +82,9 @@ Une fois les fichiers préparés, place à la machine de découpe. Chaque planch
 - **Résistant aux UV** (les couleurs ne ternissent pas au soleil)
 - **Toucher velours ultra doux** avec finition scintillante
 
-### 💡 L'astuce kawaii de Sticky
+[poll:poll-art-1]
+
+### 💡 L'astuce kawaii de Karine
 Collez votre sticker sur un coin de votre ordinateur portable ou sur le dos de votre coque transparente pour admirer ses reflets changer en fonction de la lumière du jour !
 
 Merci du fond du cœur pour votre enthousiasme incroyable lors de l'annonce sur Instagram. Les premières planches sont déjà prêtes à rejoindre vos enveloppes décorées !
@@ -75,6 +108,12 @@ Merci du fond du cœur pour votre enthousiasme incroyable lors de l'annonce sur 
       butterflies: 134,
     },
     tags: ['Tuto DIY', 'Bullet Journal', 'Toploader', 'Washi Tape', 'Organisation'],
+    seo: {
+      metaTitle: 'Tutoriel DIY : Customiser son Bullet Journal & Toploaders Kawaii',
+      metaDescription: 'Apprenez à superposer washi tapes, rubans pastel et planches d’autocollants pour créer des pages de carnet et protéger vos photocards.',
+      focusKeyword: 'bullet journal',
+      canonicalUrl: 'https://blog.stickyandkawaii.eu/#article-tuto-diy-customiser-bullet-journal-toploader-kawaii',
+    },
     content: `
 Sortez vos ciseaux à bouts ronds, vos pinces de précision et vos plus jolis rouleaux de washi tape : c'est l'heure du craft ! ✂️🌸
 
@@ -115,6 +154,12 @@ N'hésitez pas à partager vos chefs-d'œuvre avec le hashtag **#StickyKawaiiDIY
       butterflies: 82,
     },
     tags: ['Boutique', 'Eco-friendly', 'Packaging', 'Cadeaux', 'Goodies'],
+    seo: {
+      metaTitle: 'Packagings éco-responsables & Cadeaux collectors | Sticky',
+      metaDescription: 'Découvrez notre démarche zéro plastique : papier de soie lilas recyclable, rubans kraft et nos cartes postales collectors offertes.',
+      focusKeyword: 'packagings éco-responsables',
+      canonicalUrl: 'https://blog.stickyandkawaii.eu/#article-nouveaux-packagings-eco-responsables-et-cadeaux-commandes',
+    },
     content: `
 Chaque commande passée sur **stickyandkawaii.eu** est préparée comme un véritable cadeau d'anniversaire que vous vous offrez à vous-même. 🎁💌
 
@@ -150,6 +195,12 @@ Merci de faire grandir cette belle aventure avec bienveillance et respect pour n
       butterflies: 165,
     },
     tags: ['Gazette', 'Automne', 'Playlist', 'Inspiration', 'Cozy Life'],
+    seo: {
+      metaTitle: 'La Gazette Kawaii #12 : Inspirations d’automne, thés & playlists',
+      metaDescription: 'Quand les feuilles tombent et que l’air fraîchit, découvrez notre sélection d’ambiances cosy pour dessiner, créer et boire du thé.',
+      focusKeyword: 'gazette kawaii',
+      canonicalUrl: 'https://blog.stickyandkawaii.eu/#article-gazette-kawaii-12-inspirations-automne-thes-playlists',
+    },
     content: `
 L'automne est officiellement là ! 🍁🍂
 
@@ -207,3 +258,60 @@ export const INITIAL_COMMENTS: Comment[] = [
     createdAt: 'Il y a 1 semaine',
   },
 ];
+
+export const INITIAL_SUBSCRIBERS: NewsletterSubscriber[] = [
+  {
+    id: 'sub-1',
+    email: 'camille.crea@gmail.com',
+    subscribedAt: '2026-09-18T14:32:00.000Z',
+    source: 'Formulaire bas de page',
+  },
+  {
+    id: 'sub-2',
+    email: 'julie.stationery@outlook.fr',
+    subscribedAt: '2026-09-19T09:15:00.000Z',
+    source: 'Formulaire bas de page',
+  },
+  {
+    id: 'sub-3',
+    email: 'sweet_kawaii_bujo@yahoo.com',
+    subscribedAt: '2026-09-20T18:42:00.000Z',
+    source: 'Formulaire bas de page',
+  },
+];
+
+export const INITIAL_CATEGORIES: CategoryItem[] = [
+  {
+    id: 'cat-1',
+    name: 'Coulisses & Créations',
+    slug: 'coulisses-creations',
+    description: 'Croquis, fabrication & secrets de stickers',
+    icon: 'Palette',
+    color: 'purple',
+  },
+  {
+    id: 'cat-2',
+    name: 'Actus Boutique',
+    slug: 'actus-boutique',
+    description: 'Nouveaux drops, packagings & cadeaux',
+    icon: 'ShoppingBag',
+    color: 'pink',
+  },
+  {
+    id: 'cat-3',
+    name: 'Tutoriels',
+    slug: 'tutoriels',
+    description: 'Guides DIY, bullet journal & toploaders',
+    icon: 'Sparkles',
+    color: 'amber',
+  },
+  {
+    id: 'cat-4',
+    name: 'Gazettes',
+    slug: 'gazettes',
+    description: 'Moments cosy, playlists & inspirations',
+    icon: 'Coffee',
+    color: 'emerald',
+  },
+];
+

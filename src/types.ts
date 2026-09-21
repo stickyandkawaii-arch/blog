@@ -1,8 +1,13 @@
-export type Category = 
-  | 'Coulisses & Créations'
-  | 'Actus Boutique'
-  | 'Tutoriels'
-  | 'Gazettes';
+export type Category = string;
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  color: string;
+}
 
 export interface Author {
   name: string;
@@ -16,6 +21,13 @@ export interface Reactions {
   butterflies: number;
 }
 
+export interface ArticleSEO {
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeyword?: string;
+  canonicalUrl?: string;
+}
+
 export interface Article {
   id: string;
   slug: string;
@@ -27,10 +39,12 @@ export interface Article {
   readingTime: string;
   publishedAt: string;
   featured?: boolean;
-  status: 'published' | 'draft';
+  status: 'published' | 'draft' | 'scheduled';
+  scheduledAt?: string;
   author: Author;
   reactions: Reactions;
   tags: string[];
+  seo?: ArticleSEO;
 }
 
 export interface Comment {
@@ -43,7 +57,32 @@ export interface Comment {
   createdAt: string;
 }
 
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  subscribedAt: string;
+  source?: string;
+}
+
 export type ReactionType = 'stars' | 'hearts' | 'butterflies';
+
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: number;
+}
+
+export interface Poll {
+  id: string;
+  articleId: string;
+  question: string;
+  options: PollOption[];
+  totalVotes: number;
+}
+
+export interface UserPollVotes {
+  [pollId: string]: string; // optionId voted
+}
 
 export interface UserReactions {
   [articleId: string]: {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -17,14 +17,27 @@ import {
   ExternalLink,
   Trash2,
   ShieldCheck,
-  Smile
+  Smile,
+  ListOrdered,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
-import { Article, Comment, ReactionType, UserReactions, Category } from '../types';
+import { Article, Comment, ReactionType, UserReactions, Category, Poll, UserPollVotes } from '../types';
+import { SocialShareBar } from './SocialShareBar';
+
+interface TocItem {
+  id: string;
+  text: string;
+  level: number;
+}
 
 interface ArticleViewProps {
   article: Article;
   comments: Comment[];
   userReactions: UserReactions;
+  polls?: Poll[];
+  userPollVotes?: UserPollVotes;
+  onVote?: (pollId: string, optionId: string) => void;
   onBack: () => void;
   onReact: (articleId: string, reaction: ReactionType) => void;
   onAddComment: (articleId: string, author: string, content: string, avatarIcon?: string) => void;
@@ -39,6 +52,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
   article,
   comments,
   userReactions,
+  polls = [],
+  userPollVotes = {},
+  onVote = () => {},
   onBack,
   onReact,
   onAddComment,
@@ -55,6 +71,33 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [floatingParticles, setFloatingParticles] = useState<{ id: number; symbol: string; x: number }[]>([]);
+  const [isTocOpen, setIsTocOpen] = useState(true);
+
+  // Extract table of contents from content paragraphs (H2 and H3)
+  const tocItems = useMemo(() => {
+    const items: { id: string; text: string; level: number }[] = [];
+    const blocks = article.content.split('\n\n');
+    blocks.forEach((block, idx) => {
+      const trimmed = block.trim();
+      if (trimmed.startsWith('## ')) {
+        const text = trimmed.replace('## ', '').replace(/\*\*/g, '');
+        const id = `heading-h2-${idx}`;
+        items.push({ id, text, level: 2 });
+      } else if (trimmed.startsWith('### ')) {
+        const text = trimmed.replace('### ', '').replace(/\*\*/g, '');
+        const id = `heading-h3-${idx}`;
+        items.push({ id, text, level: 3 });
+      }
+    });
+    return items;
+  }, [article.content]);
+
+  const scrollToHeading = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const currentReactions = userReactions[article.id] || {};
 
@@ -89,21 +132,52 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  // Format content paragraphs and special markdown blocks
+  // Format content paragraphs and special HTML/markdown blocks
   const renderFormattedContent = (content: string) => {
     const blocks = content.split('\n\n');
 
     return blocks.map((block, idx) => {
       const trimmed = block.trim();
+      if (!trimmed) return null;
+
+      // Raw HTML block (e.g., <table>, <div>, <p>, <iframe>, <img)
+      if ((trimmed.startsWith('<') && trimmed.includes('>')) || trimmed.includes('<table')) {
+        return (
+          <div
+            key={idx}
+            className="my-4 leading-relaxed overflow-x-auto"
+            dangerouslySetInnerHTML={{ __html: trimmed }}
+          />
+        );
+      }
+
+      // Heading 2
+      if (trimmed.startsWith('## ')) {
+        const text = trimmed.replace('## ', '');
+        const id = `heading-h2-${idx}`;
+        return (
+          <h2
+            key={idx}
+            id={id}
+            className="font-['Comfortaa',cursive] text-xl sm:text-2xl font-bold text-[#3D2E39] mt-10 mb-4 pt-4 border-t border-[#f4f0fa] flex items-center gap-2.5 scroll-mt-24"
+          >
+            <span className="w-2.5 h-6 rounded-full bg-[#7c3aed]" />
+            <span>{text}</span>
+          </h2>
+        );
+      }
 
       // Heading 3
       if (trimmed.startsWith('### ')) {
+        const text = trimmed.replace('### ', '');
+        const id = `heading-h3-${idx}`;
         return (
           <h3 
             key={idx} 
-            className="font-['Comfortaa',cursive] text-lg sm:text-xl font-bold text-[#4c1d95] mt-8 mb-3 flex items-center gap-2"
+            id={id}
+            className="font-['Comfortaa',cursive] text-lg sm:text-xl font-bold text-[#4c1d95] mt-8 mb-3 flex items-center gap-2 scroll-mt-24"
           >
-            {trimmed.replace('### ', '')}
+            {text}
           </h3>
         );
       }
@@ -157,13 +231,14 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
 
       // Standard Paragraph
       return (
-        <p 
+        <div 
           key={idx} 
           className="text-sm sm:text-base text-slate-700 leading-relaxed my-4"
           dangerouslySetInnerHTML={{
             __html: trimmed
               .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
               .replace(/\*(.*?)\*/g, '<em class="italic text-purple-900">$1</em>')
+              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#7c3aed] font-semibold underline hover:text-[#5b21b6] transition-colors">$1</a>')
           }}
         />
       );
@@ -270,8 +345,57 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           />
         </div>
 
+        {/* AUTOMATIC TABLE OF CONTENTS (SOMMAIRE) */}
+        {tocItems.length > 0 && (
+          <div className="mb-10 bg-gradient-to-br from-[#faf7ff] to-[#f4edfc] border border-[#e5dbf7] rounded-2xl p-5 shadow-xs">
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsTocOpen(!isTocOpen)}>
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-purple-100 text-[#7c3aed]">
+                  <ListOrdered className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-['Comfortaa',cursive] text-sm font-bold text-[#3D2E39]">
+                    Sommaire de l'article ({tocItems.length} sections)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Navigation rapide dans le contenu</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="p-1.5 rounded-lg text-[#7c3aed] hover:bg-purple-100/50 transition-colors cursor-pointer"
+              >
+                {isTocOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {isTocOpen && (
+              <nav className="mt-4 pt-3 border-t border-[#e5dbf7] space-y-1.5 max-h-64 overflow-y-auto pr-2">
+                {tocItems.map((item: TocItem, idx: number) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => scrollToHeading(item.id)}
+                    className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between group cursor-pointer ${
+                      item.level === 3 
+                        ? 'pl-6 text-slate-600 hover:bg-white hover:text-[#7c3aed]' 
+                        : 'text-[#3D2E39] hover:bg-white hover:text-[#7c3aed] font-bold'
+                    }`}
+                  >
+                    <span className="truncate group-hover:translate-x-1 transition-transform">
+                      {item.level === 3 ? '↳ ' : '• '} {item.text}
+                    </span>
+                    <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Aller à la section
+                    </span>
+                  </button>
+                ))}
+              </nav>
+            )}
+          </div>
+        )}
+
         {/* Article Body Content */}
-        <div className="prose prose-purple max-w-none mb-10">
+        <div className="prose prose-purple article-content max-w-none mb-10">
           {renderFormattedContent(article.content)}
         </div>
 
@@ -317,6 +441,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           </a>
         </div>
 
+        {/* Social Share Bar (In-page block & floating bar on scroll) */}
+        <SocialShareBar article={article} />
+
         {/* Kawaii Reactions System */}
         <div id="kawaii-reactions-section" className="mt-10 pt-8 border-t border-[#f4f0fa] text-center relative">
           <div className="relative inline-block mb-3">
@@ -328,7 +455,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
               Avez-vous aimé cet article ? ✨
             </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Choisissez parmi nos emojis tout mignons pour envoyer votre dose d’amour et d’inspiration créative à Sticky !
+              Choisissez parmi nos emojis tout mignons pour envoyer votre dose d’amour et d’inspiration créative à Karine !
             </p>
 
             {/* Floating Particles Animation */}
@@ -435,7 +562,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
                 Espace Commentaires
               </h3>
               <p className="text-xs text-slate-500">
-                Partagez votre avis, vos créations ou posez une question à Sticky
+                Partagez votre avis, vos créations ou posez une question à Karine
               </p>
             </div>
           </div>
