@@ -45,6 +45,7 @@ export interface Article {
   reactions: Reactions;
   tags: string[];
   seo?: ArticleSEO;
+  pollId?: string;
 }
 
 export interface Comment {

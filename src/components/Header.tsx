@@ -206,7 +206,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* 2. NOUVEAUTÉS */}
             <li>
               <a
-                href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
+                href="https://stickyandkawaii.eu/cat%C3%A9gorie/nouveautes"
                 target="_parent"
                 className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 inline-block font-bold tracking-[0.05em] uppercase transition-colors"
                 title="Découvrir les nouveautés"
@@ -226,7 +226,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <a
                   href="https://stickyandkawaii.eu/produits"
                   target="_parent"
-                  className="text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block"
+                  className={`text-[#3D2E39] hover:text-[#4C2882] pb-1.5 font-bold tracking-[0.05em] uppercase transition-colors inline-block ${
+                    isBoutiqueDropdownOpen ? 'underline underline-offset-4 decoration-[#3D2E39]' : ''
+                  }`}
                 >
                   BOUTIQUE
                 </a>
@@ -236,37 +238,40 @@ export const Header: React.FC<HeaderProps> = ({
                   className="pb-1.5 text-[#3D2E39] hover:text-[#4C2882] cursor-pointer flex items-center transition-colors"
                   aria-label="Menu Boutique"
                 >
-                  <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${
+                      isBoutiqueDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
               </div>
 
               {/* Boutique Dropdown */}
               {isBoutiqueDropdownOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 w-48 bg-white rounded-xl border border-[#e5dbf7] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-100 normal-case tracking-normal">
-                  <a
-                    href="https://stickyandkawaii.eu/produits"
-                    target="_parent"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <span>Tous les produits</span>
-                    <ExternalLink className="w-3 h-3 text-slate-400" />
-                  </a>
-                  <a
-                    href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
-                    target="_parent"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <span>Nouveautés</span>
-                    <Sparkles className="w-3 h-3 text-amber-500" />
-                  </a>
-                  <a
-                    href="https://stickyandkawaii.eu/produits"
-                    target="_parent"
-                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-semibold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] transition-colors"
-                  >
-                    <span>Stickers & Papeterie</span>
-                    <Heart className="w-3 h-3 text-pink-500" />
-                  </a>
+                <div className="absolute left-0 top-full mt-0 w-56 bg-white border border-[#e2e8f0] shadow-md z-50 animate-in fade-in duration-100 normal-case tracking-normal">
+                  <div className="flex flex-col divide-y divide-[#e2e8f0]">
+                    <a
+                      href="https://stickyandkawaii.eu/produits"
+                      target="_parent"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      Tous les produits
+                    </a>
+                    <a
+                      href="https://stickyandkawaii.eu/cat%C3%A9gorie/hors-collections"
+                      target="_parent"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      Hors collections
+                    </a>
+                    <a
+                      href="https://stickyandkawaii.eu/cat%C3%A9gorie/ancienne-collection"
+                      target="_parent"
+                      className="px-4 py-2.5 text-[15px] font-normal text-[#1e293b] hover:bg-[#faf8fc] hover:text-[#4C2882] transition-colors block text-left"
+                    >
+                      Anciennes collections
+                    </a>
+                  </div>
                 </div>
               )}
             </li>

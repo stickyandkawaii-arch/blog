@@ -73,7 +73,7 @@ import {
   CalendarClock,
   Timer
 } from 'lucide-react';
-import { Article, Category, Comment, ArticleSEO, NewsletterSubscriber, CategoryItem } from '../types';
+import { Article, Category, Comment, ArticleSEO, NewsletterSubscriber, CategoryItem, Poll } from '../types';
 import { 
   AVAILABLE_CATEGORY_ICONS, 
   CATEGORY_COLORS, 
@@ -113,6 +113,7 @@ interface AdminModalProps {
   onLogout: () => void;
   onPreviewArticle: (article: Article) => void;
   onRestoreData?: (data: BlogBackupData) => void;
+  polls: Poll[];
 }
 
 export const AdminModal: React.FC<AdminModalProps> = ({
@@ -135,6 +136,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   onLogout,
   onPreviewArticle,
   onRestoreData,
+  polls,
 }) => {
   // Auth state
   const [email, setEmail] = useState('stickyandkawaii@gmail.com');
@@ -196,9 +198,11 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const [scheduledTime, setScheduledTime] = useState<string>('09:00');
   const [tagsInput, setTagsInput] = useState('Stickers, Kawaii, Création');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [selectedPollId, setSelectedPollId] = useState<string>('');
   
   // Right sidebar collapsible panels
   const [isSeoPanelOpen, setIsSeoPanelOpen] = useState(false);
+  const [isPollPanelOpen, setIsPollPanelOpen] = useState(true);
   const [isReadabilityPanelOpen, setIsReadabilityPanelOpen] = useState(false);
   
   // Editor view subtabs
@@ -371,6 +375,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
     setScheduledTime('09:00');
     setTagsInput('Stickers, Papeterie, DIY');
     setIsFeatured(false);
+    setSelectedPollId('');
     setMetaTitle('');
     setMetaDescription('');
     setFocusKeyword('stickers kawaii');
@@ -404,6 +409,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
     }
     setTagsInput(art.tags.join(', '));
     setIsFeatured(!!art.featured);
+    setSelectedPollId(art.pollId || '');
     setMetaTitle(art.seo?.metaTitle || art.title);
     setMetaDescription(art.seo?.metaDescription || art.summary);
     setFocusKeyword(art.seo?.focusKeyword || '');
@@ -493,7 +499,8 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
         metaDescription: metaDescription.trim() || summary.trim(),
         focusKeyword: focusKeyword.trim(),
         canonicalUrl: `https://blog.stickyandkawaii.eu/#article-${generatedSlug}`,
-      }
+      },
+      pollId: selectedPollId || undefined,
     };
 
     onSaveArticle(articleData);
@@ -1909,6 +1916,70 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                             </div>
                           )}
                         </div>
+                      </div>
+                      
+                      {/* Poll Selection Section */}
+                      <div className="bg-white p-5 rounded-3xl border border-[#e5dbf7] space-y-3.5">
+                        <button
+                          type="button"
+                          onClick={() => setIsPollPanelOpen(!isPollPanelOpen)}
+                          className="w-full flex items-center justify-between hover:opacity-80 transition-all cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <BarChart3 className="w-4 h-4 text-[#4C2882]" />
+                            <h3 className="text-xs font-bold text-[#3D2E39] uppercase tracking-wider">
+                              Associer un sondage
+                            </h3>
+                          </div>
+                          {isPollPanelOpen ? (
+                            <ChevronUp className="w-4 h-4 text-slate-400" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+
+                        {isPollPanelOpen && (
+                          <div className="space-y-3 pt-1 animate-in slide-in-from-top-2 duration-200">
+                            <p className="text-[11px] text-slate-500 leading-relaxed">
+                              Choisissez un sondage existant pour l'intégrer automatiquement à la fin de cet article.
+                            </p>
+                            
+                            <div className="space-y-2">
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                Sélectionner le sondage
+                              </label>
+                              <select
+                                value={selectedPollId}
+                                onChange={(e) => setSelectedPollId(e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-xl bg-[#faf8fc] border border-[#e5dbf7] text-xs font-bold text-[#3D2E39] focus:outline-hidden focus:ring-2 focus:ring-[#4C2882]/20 transition-all"
+                              >
+                                <option value="">--- Aucun sondage ---</option>
+                                {polls.map((poll) => (
+                                  <option key={poll.id} value={poll.id}>
+                                    📊 {poll.question}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {selectedPollId && (
+                              <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-100 flex items-start gap-2 animate-in fade-in">
+                                <HelpCircle className="w-4 h-4 text-[#4C2882] shrink-0 mt-0.5" />
+                                <p className="text-[10px] text-[#4C2882] leading-tight font-medium">
+                                  Le sondage sera affiché publiquement sous le contenu de l'article pour encourager l'engagement.
+                                </p>
+                              </div>
+                            )}
+
+                            {polls.length === 0 && (
+                              <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 text-center">
+                                <p className="text-[10px] text-amber-700 font-medium">
+                                  Aucun sondage disponible. Créez-en un dans la section Cloud.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Collapsible SEO & Readability Panels in right column */}

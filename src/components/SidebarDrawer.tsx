@@ -128,7 +128,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                   </a>
 
                   <a
-                    href="https://stickyandkawaii.eu/produits?sortField=createdAt&sortDirection=desc&category=&page=1"
+                    href="https://stickyandkawaii.eu/cat%C3%A9gorie/nouveautes"
                     target="_parent"
                     className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors"
                   >
@@ -136,14 +136,43 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                   </a>
 
-                  <a
-                    href="https://stickyandkawaii.eu/produits"
-                    target="_parent"
-                    className="flex items-center justify-between p-2.5 rounded-xl text-sm font-bold text-[#3D2E39] hover:bg-[#F7ECE3] hover:text-[#4C2882] tracking-[0.05em] uppercase transition-colors"
-                  >
-                    <span>BOUTIQUE</span>
-                    <ShoppingBag className="w-3.5 h-3.5 text-pink-500" />
-                  </a>
+                  {/* Boutique with submenus */}
+                  <div className="rounded-xl border border-[#ebdcd3] bg-[#faf8fc] p-2 space-y-1">
+                    <a
+                      href="https://stickyandkawaii.eu/produits"
+                      target="_parent"
+                      className="flex items-center justify-between text-sm font-bold text-[#3D2E39] hover:text-[#4C2882] tracking-[0.05em] uppercase px-1 py-1"
+                    >
+                      <span>BOUTIQUE</span>
+                      <ShoppingBag className="w-3.5 h-3.5 text-pink-500" />
+                    </a>
+                    <div className="pl-2.5 border-l-2 border-[#e5dbf7] space-y-1 mt-1">
+                      <a
+                        href="https://stickyandkawaii.eu/produits"
+                        target="_parent"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
+                      >
+                        <Heart className="w-3 h-3 text-pink-500" />
+                        <span>Tous les produits</span>
+                      </a>
+                      <a
+                        href="https://stickyandkawaii.eu/cat%C3%A9gorie/hors-collections"
+                        target="_parent"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
+                      >
+                        <Palette className="w-3 h-3 text-purple-500" />
+                        <span>Hors collections</span>
+                      </a>
+                      <a
+                        href="https://stickyandkawaii.eu/cat%C3%A9gorie/ancienne-collection"
+                        target="_parent"
+                        className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] hover:text-[#4C2882] py-1"
+                      >
+                        <Sparkles className="w-3 h-3 text-amber-500" />
+                        <span>Anciennes collections</span>
+                      </a>
+                    </div>
+                  </div>
 
                   {/* The Snail's Gazette with 3 submenus */}
                   <div className="rounded-xl border border-purple-100 bg-[#faf7ff] p-2 space-y-1 mt-1">

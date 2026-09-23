@@ -785,6 +785,7 @@ export default function App() {
         onLogout={handleAdminLogout}
         onPreviewArticle={handleOpenArticle}
         onRestoreData={handleRestoreData}
+        polls={polls}
       />
     </div>
   );

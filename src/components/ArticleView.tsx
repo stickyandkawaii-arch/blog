@@ -20,7 +20,8 @@ import {
   Smile,
   ListOrdered,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  BarChart3
 } from 'lucide-react';
 import { Article, Comment, ReactionType, UserReactions, Category, Poll, UserPollVotes } from '../types';
 import { SocialShareBar } from './SocialShareBar';
@@ -440,6 +441,115 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
+
+        {/* Associated Poll Section */}
+        {article.pollId && polls.find(p => p.id === article.pollId) && (
+          <div className="mt-10 p-6 rounded-3xl bg-white border border-[#e5dbf7] shadow-xs overflow-hidden relative group animate-in slide-in-from-bottom-4 duration-500">
+            {/* Background pattern */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#4C2882]/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-[#4C2882]/10 transition-colors" />
+            
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-[#4C2882]/10 text-[#4C2882]">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-['Comfortaa',cursive] text-base font-bold text-[#3D2E39]">
+                    Votre avis nous intéresse ! ✨
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Sondage lié à cet article</p>
+                </div>
+              </div>
+              <div className="px-3 py-1 rounded-full bg-[#4C2882]/10 text-[#4C2882] text-[10px] font-extrabold uppercase tracking-widest">
+                Interactif
+              </div>
+            </div>
+
+            {(() => {
+              const activePoll = polls.find(p => p.id === article.pollId)!;
+              const hasVoted = userPollVotes[activePoll.id];
+              
+              return (
+                <div className="relative space-y-4">
+                  <h4 className="text-sm font-bold text-[#3D2E39] mb-4">
+                    {activePoll.question}
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    {activePoll.options.map((option) => {
+                      const percentage = activePoll.totalVotes > 0 
+                        ? Math.round((option.votes / activePoll.totalVotes) * 100) 
+                        : 0;
+                      const isSelected = hasVoted === option.id;
+
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => !hasVoted && onVote(activePoll.id, option.id)}
+                          disabled={!!hasVoted}
+                          className={`relative w-full text-left p-4 rounded-2xl border transition-all overflow-hidden group/opt ${
+                            isSelected 
+                              ? 'border-[#4C2882] bg-purple-50' 
+                              : hasVoted 
+                                ? 'border-[#e5dbf7] bg-white opacity-90' 
+                                : 'border-[#e5dbf7] bg-white hover:border-[#4C2882]/50 hover:bg-[#faf8fc] cursor-pointer'
+                          }`}
+                        >
+                          {/* Progress bar background */}
+                          {hasVoted && (
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${percentage}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              className={`absolute inset-0 h-full ${
+                                isSelected ? 'bg-[#4C2882]/10' : 'bg-slate-100'
+                              }`}
+                            />
+                          )}
+
+                          <div className="relative flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected 
+                                  ? 'border-[#4C2882] bg-[#4C2882]' 
+                                  : 'border-slate-300 bg-white'
+                              }`}>
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </div>
+                              <span className={`text-xs font-bold transition-colors ${
+                                isSelected ? 'text-[#4C2882]' : 'text-slate-700'
+                              }`}>
+                                {option.text}
+                              </span>
+                            </div>
+                            
+                            {hasVoted && (
+                              <span className="text-[11px] font-extrabold text-slate-500">
+                                {percentage}%
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                      <HelpCircle className="w-3 h-3" />
+                      <span>{activePoll.totalVotes} vote{activePoll.totalVotes > 1 ? 's' : ''} au total</span>
+                    </div>
+                    {hasVoted && (
+                      <span className="text-[10px] font-bold text-[#4C2882] flex items-center gap-1 animate-pulse">
+                        <Check className="w-3 h-3" /> Vote enregistré
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {/* Social Share Bar (In-page block & floating bar on scroll) */}
         <SocialShareBar article={article} />
