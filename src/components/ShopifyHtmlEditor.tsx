@@ -426,7 +426,7 @@ export const ShopifyHtmlEditor: React.FC<ShopifyHtmlEditorProps> = ({
   const kawaiiColors = [
     { name: 'Satan Violet', hex: '#7c3aed' },
     { name: 'Rose Bonbon', hex: '#db2777' },
-    { name: 'Lilas Doux', hex: '#9333ea' },
+    { name: 'Lilas', hex: '#9333ea' },
     { name: 'Menthe Fraîche', hex: '#059669' },
     { name: 'Miel Doré', hex: '#d97706' },
     { name: 'Bleu Céleste', hex: '#2563eb' },
@@ -456,7 +456,7 @@ export const ShopifyHtmlEditor: React.FC<ShopifyHtmlEditorProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    insertHtmlAtCursor('<p>✨ <strong>Note créative :</strong> Tous nos produits sont fabriqués artisanalement dans notre atelier avec une attention particulière portée aux détails kawaii.</p>');
+                    insertHtmlAtCursor('<p>✨ <strong>Note créative :</strong> Tous mes produits sont fabriqués artisanalement dans mon atelier avec une attention particulière portée aux détails kawaii.</p>');
                     setActiveDropdown(null);
                   }}
                   className="w-full text-left p-2 hover:bg-purple-50 rounded-xl font-medium"

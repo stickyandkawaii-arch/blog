@@ -424,7 +424,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
             </div>
             <div>
               <h4 className="font-['Comfortaa',cursive] text-sm sm:text-base font-bold text-[#5c3818]">
-                Craquez pour nos créations sur la boutique !
+                Craquez pour mes créations sur la boutique !
               </h4>
               <p className="text-xs text-[#7a4e27] mt-0.5">
                 Retrouvez toutes les planches de stickers, toploaders et washi tapes sur stickyandkawaii.eu
@@ -565,7 +565,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
               Avez-vous aimé cet article ? ✨
             </h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Choisissez parmi nos emojis tout mignons pour envoyer votre dose d’amour et d’inspiration créative à Karine !
+              Choisissez parmi mes emojis tout mignons pour envoyer votre dose d’amour et d’inspiration créative à Karine !
             </p>
 
             {/* Floating Particles Animation */}
@@ -630,7 +630,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
                   ? 'bg-purple-100 border-purple-300 text-purple-900 shadow-md ring-2 ring-purple-400/40'
                   : 'bg-[#fcfaff] border-[#e5dbf7] hover:bg-purple-50 hover:border-purple-200 text-slate-700'
               }`}
-              title="Envoyer des papillons doux (🦋)"
+              title="Envoyer des papillons (🦋)"
             >
               <span className="text-xl">🦋</span>
               <span className="text-slate-800">Papillons</span>
@@ -706,7 +706,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           {comments.length === 0 ? (
             <div className="text-center py-10 bg-[#fcfaff] rounded-2xl border border-dashed border-[#e5dbf7]">
               <p className="text-sm font-semibold text-slate-600 mb-1">
-                Soyez la première personne à laisser un petit mot doux ! 🌸
+                Soyez la première personne à laisser un petit mot ! 🌸
               </p>
               <p className="text-xs text-slate-400">
                 Utilisez le formulaire ci-dessous pour publier votre commentaire.
@@ -849,7 +849,7 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             {commentSubmitted ? (
               <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-                <Check className="w-4 h-4" /> Merci pour votre message tout doux !
+                <Check className="w-4 h-4" /> Merci pour votre message !
               </span>
             ) : (
               <span className="text-[11px] text-slate-400">

@@ -948,7 +948,7 @@ export default function App() {
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
                   {articles.length === 0
-                    ? "Aucun article n'est actuellement en ligne sur le blog. Revenez très vite pour découvrir nos actualités !"
+                    ? "Aucun article n'est actuellement en ligne sur le blog. Revenez très vite pour découvrir mon actualité !"
                     : "Aucun article ne correspond à votre recherche ou catégorie actuelle. Essayez d'autres mots-clés ou réinitialisez les filtres."}
                 </p>
                 {articles.length > 0 && (

@@ -367,7 +367,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     setSummary('');
     setContent(`## Bienvenue dans cet article !
 
-Voici le premier paragraphe de votre article doux et réconfortant. Racontez une anecdote sur la création de vos stickers ou vos astuces créatives.
+Voici le premier paragraphe de votre article réconfortant. Racontez une anecdote sur la création de vos stickers ou vos astuces créatives.
 
 > *« Une petite phrase inspirante pour égayer la journée de vos lecteurs. »*
 
@@ -2477,7 +2477,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                           <ul className="text-xs space-y-1.5 text-slate-600 list-disc pl-4">
                             <li><strong>Privilégiez les phrases directes</strong> (1 idée = 1 phrase).</li>
                             <li><strong>Aérez avec des puces</strong> pour les listes de matériel ou conseils.</li>
-                            <li><strong>Ajoutez des émojis doux</strong> (✨, 🌸, 💡, ✂️) pour donner un ton chaleureux.</li>
+                            <li><strong>Ajoutez des émojis</strong> (✨, 🌸, 💡, ✂️) pour donner un ton chaleureux.</li>
                             <li><strong>Scindez les connecteurs logiques</strong> (« cependant », « par conséquent ») en deux phrases distinctes.</li>
                           </ul>
                         </div>

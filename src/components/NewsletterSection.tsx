@@ -88,19 +88,15 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({ onSubscrib
 
             {/* Description */}
             <p className="text-sm sm:text-base text-slate-700 leading-relaxed max-w-xl">
-              Recevez nos actualités d'atelier, les annonces de nouveaux drops de stickers, 
-              nos tutoriels DIY créatifs et de jolies attentions réservées à nos abonnés.
+              Recevez mon actualité d'atelier, les annonces de nouveaux drops de stickers, 
+              mes tutoriels DIY créatifs et de jolies attentions.
             </p>
 
             {/* Perks list */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] bg-white/70 backdrop-blur-xs px-3 py-2 rounded-2xl border border-white/60">
-                <Gift className="w-4 h-4 text-pink-500 shrink-0" />
-                <span>Goodies & fonds d'écran</span>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 max-w-md">
               <div className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] bg-white/70 backdrop-blur-xs px-3 py-2 rounded-2xl border border-white/60">
                 <Bell className="w-4 h-4 text-[#4C2882] shrink-0" />
-                <span>1 email doux / mois</span>
+                <span>1 mail par semaine</span>
               </div>
               <div className="flex items-center gap-2 text-xs font-semibold text-[#3D2E39] bg-white/70 backdrop-blur-xs px-3 py-2 rounded-2xl border border-white/60">
                 <Star className="w-4 h-4 text-amber-500 fill-amber-400 shrink-0" />
@@ -157,7 +153,7 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({ onSubscrib
                       <span className="inline-block animate-pulse">Inscription en cours... ✨</span>
                     ) : (
                       <>
-                        <span>Recevoir les e-mails doux</span>
+                        <span>Recevoir les e-mails</span>
                         <Send className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
