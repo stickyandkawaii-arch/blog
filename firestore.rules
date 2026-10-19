@@ -22,6 +22,21 @@ service cloud.firestore {
       allow create, update, delete: if isValidId(docId);
     }
 
+    // Direct articles collection
+    match /articles/{articleId} {
+      allow list, get, create, update, delete: if true;
+    }
+
+    // Direct posts collection
+    match /posts/{postId} {
+      allow list, get, create, update, delete: if true;
+    }
+
+    // Direct blog_posts collection
+    match /blog_posts/{id} {
+      allow list, get, create, update, delete: if true;
+    }
+
     // Health check/connection test
     match /test/{testId} {
       allow list: if true;

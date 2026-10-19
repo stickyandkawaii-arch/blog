@@ -10,10 +10,19 @@ import { AdminModal } from './components/AdminModal';
 import { NewsletterSection } from './components/NewsletterSection';
 
 import { Article, Comment, Category, ReactionType, UserReactions, NewsletterSubscriber, CategoryItem, Poll, UserPollVotes } from './types';
-import { INITIAL_ARTICLES, INITIAL_COMMENTS, INITIAL_SUBSCRIBERS, INITIAL_CATEGORIES, INITIAL_POLLS } from './data/initialArticles';
+import { 
+  INITIAL_ARTICLES, 
+  INITIAL_COMMENTS, 
+  INITIAL_SUBSCRIBERS, 
+  INITIAL_CATEGORIES, 
+  INITIAL_POLLS,
+  isObsoleteDemoArticle,
+  isObsoleteDemoComment,
+} from './data/initialArticles';
 import { Sparkles, Compass, AlertCircle, BookOpen, Heart } from 'lucide-react';
-import { testFirestoreConnection } from './lib/firebase';
-import { BlogBackupData } from './lib/cloudBackupService';
+import { testFirestoreConnection, db } from './lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { BlogBackupData, getLatestCloudBackup, createManualCloudBackup } from './lib/cloudBackupService';
 
 const STORAGE_KEYS = {
   ARTICLES: 'sticky_kawaii_blog_articles_v2',
@@ -24,9 +33,12 @@ const STORAGE_KEYS = {
   CATEGORIES: 'sticky_kawaii_blog_categories_v2',
   POLLS: 'sticky_kawaii_blog_polls_v2',
   USER_POLL_VOTES: 'sticky_kawaii_blog_user_poll_votes_v2',
+  LAST_SYNC_TIMESTAMP: 'sticky_kawaii_blog_last_sync_timestamp_v2',
 };
 
 export default function App() {
+  const [isLoadingCloud, setIsLoadingCloud] = useState<boolean>(true);
+
   // Categories state
   const [categories, setCategories] = useState<CategoryItem[]>(() => {
     try {
@@ -40,37 +52,69 @@ export default function App() {
     return INITIAL_CATEGORIES;
   });
 
-  // Articles state
+  // Articles state - Starts empty or with local storage, permanently purging deleted demo articles
   const [articles, setArticles] = useState<Article[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.ARTICLES);
-      if (saved) {
-        const loaded: Article[] = JSON.parse(saved);
-        return loaded.map((art) => ({
-          ...art,
-          author: {
-            ...art.author,
-            name: art.author?.name === 'Sticky' ? 'Karine' : (art.author?.name || 'Karine'),
-          },
-        }));
+      // Check current storage key and legacy keys
+      const keys = [
+        STORAGE_KEYS.ARTICLES,
+        'sticky_kawaii_blog_articles_v2',
+        'sticky_kawaii_blog_articles',
+        'sticky_blog_articles',
+      ];
+      for (const k of keys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const loaded: Article[] = JSON.parse(raw);
+            if (Array.isArray(loaded)) {
+              const cleaned = loaded
+                .filter((art) => !isObsoleteDemoArticle(art))
+                .map((art) => ({
+                  ...art,
+                  author: {
+                    ...art.author,
+                    name: art.author?.name === 'Sticky' ? 'Karine' : (art.author?.name || 'Karine'),
+                  },
+                }));
+              // Write cleaned back to current storage key
+              localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(cleaned));
+              if (cleaned.length > 0) {
+                return cleaned;
+              }
+            }
+          } catch {}
+        }
       }
     } catch (e) {
       console.error('Failed to load articles from storage', e);
     }
-    return INITIAL_ARTICLES;
+    return [];
   });
 
-  // Comments state
+  // Comments state - Permanently clean mock comments
   const [comments, setComments] = useState<Comment[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.COMMENTS);
-      if (saved) {
-        return JSON.parse(saved);
+      const keys = [STORAGE_KEYS.COMMENTS, 'sticky_kawaii_blog_comments_v2', 'sticky_blog_comments'];
+      for (const k of keys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const loaded: Comment[] = JSON.parse(raw);
+            if (Array.isArray(loaded)) {
+              const cleaned = loaded.filter(
+                (c) => !isObsoleteDemoComment(c)
+              );
+              localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(cleaned));
+              if (cleaned.length > 0) return cleaned;
+            }
+          } catch {}
+        }
       }
     } catch (e) {
       console.error('Failed to load comments from storage', e);
     }
-    return INITIAL_COMMENTS;
+    return [];
   });
 
   // Newsletter Subscribers state
@@ -129,12 +173,96 @@ export default function App() {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_AUTH) === 'true';
   });
 
-  // Verify Firestore connection on startup (non-blocking)
+  // Verify Firestore connection on startup & auto-sync from Cloud in real-time
   useEffect(() => {
     testFirestoreConnection().catch((err) => {
       console.warn('Initial Firestore connectivity probe warning:', err);
     });
-  }, []);
+
+    const syncDocRef = doc(db, 'blog_sync', 'latest');
+    const unsubscribe = onSnapshot(
+      syncDocRef,
+      (snapshot) => {
+        setIsLoadingCloud(false);
+        if (snapshot.exists()) {
+          const cloudData = snapshot.data();
+          const backupData = cloudData?.data;
+          if (backupData) {
+            const cloudArticles = (backupData.articles || []).filter(
+              (art: Article) => !isObsoleteDemoArticle(art)
+            );
+
+            // Read local storage to preserve unsaved drafts only if admin has them
+            const localSaved = localStorage.getItem(STORAGE_KEYS.ARTICLES);
+            let localArticles: Article[] = [];
+            try {
+              if (localSaved) {
+                const parsed = JSON.parse(localSaved);
+                if (Array.isArray(parsed)) {
+                  localArticles = parsed.filter((a) => !isObsoleteDemoArticle(a));
+                }
+              }
+            } catch {}
+
+            // If cloud has articles, cloud is the public source of truth
+            if (cloudArticles.length > 0) {
+              setArticles(cloudArticles);
+              localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(cloudArticles));
+            } else if (localArticles.length > 0 && isAdminLoggedIn) {
+              // Admin has local articles that haven't been pushed to cloud yet
+              setArticles(localArticles);
+            } else {
+              // Cloud has 0 articles and visitor has no articles: clean empty state
+              setArticles([]);
+              localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify([]));
+            }
+
+            if (Array.isArray(backupData.categories) && backupData.categories.length > 0) {
+              setCategories(backupData.categories);
+              localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(backupData.categories));
+            }
+            if (Array.isArray(backupData.comments)) {
+              const cleanComments = backupData.comments.filter((c) => !isObsoleteDemoComment(c));
+              setComments(cleanComments);
+              localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(cleanComments));
+            }
+            if (Array.isArray(backupData.subscribers)) {
+              setSubscribers(backupData.subscribers);
+              localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(backupData.subscribers));
+            }
+            if (Array.isArray(backupData.polls)) {
+              setPolls(backupData.polls);
+              localStorage.setItem(STORAGE_KEYS.POLLS, JSON.stringify(backupData.polls));
+            }
+            if (backupData.userPollVotes) {
+              setUserPollVotes(backupData.userPollVotes);
+              localStorage.setItem(STORAGE_KEYS.USER_POLL_VOTES, JSON.stringify(backupData.userPollVotes));
+            }
+            if (backupData.userReactions) {
+              setUserReactions(backupData.userReactions);
+              localStorage.setItem(STORAGE_KEYS.USER_REACTIONS, JSON.stringify(backupData.userReactions));
+            }
+            if (cloudData.timestamp) {
+              localStorage.setItem(STORAGE_KEYS.LAST_SYNC_TIMESTAMP, cloudData.timestamp);
+            }
+            console.log('App updated in real-time from cloud sync:', cloudData.id, `${cloudArticles.length} article(s)`);
+          }
+        } else {
+          if (!isAdminLoggedIn) {
+            setArticles([]);
+          }
+        }
+      },
+      (error) => {
+        console.warn('Real-time Firestore sync notice:', error);
+        setIsLoadingCloud(false);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [isAdminLoggedIn]);
 
   // Navigation & View state
   const [activeArticleId, setActiveArticleId] = useState<string | null>(null);
@@ -414,21 +542,80 @@ export default function App() {
     localStorage.removeItem(STORAGE_KEYS.ADMIN_AUTH);
   };
 
-  const handleSaveArticle = (savedArticle: Article) => {
-    setArticles((prev) => {
-      const exists = prev.some((a) => a.id === savedArticle.id);
-      if (exists) {
-        return prev.map((a) => (a.id === savedArticle.id ? savedArticle : a));
-      } else {
-        return [savedArticle, ...prev];
-      }
-    });
+  const handleSaveArticle = async (savedArticle: Article) => {
+    const currentArticles = articles.length > 0 
+      ? articles 
+      : (() => {
+          try {
+            const s = localStorage.getItem(STORAGE_KEYS.ARTICLES);
+            return s ? JSON.parse(s) : [];
+          } catch { return []; }
+        })();
+
+    const cleanCurrent = currentArticles.filter((a: Article) => !isObsoleteDemoArticle(a));
+    const exists = cleanCurrent.some((a: Article) => a.id === savedArticle.id);
+    const updatedArticles = exists
+      ? cleanCurrent.map((a: Article) => (a.id === savedArticle.id ? savedArticle : a))
+      : [savedArticle, ...cleanCurrent];
+
+    setArticles(updatedArticles);
+    localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(updatedArticles));
+
+    // Auto-sync in background to Firestore Cloud with actual articles array!
+    try {
+      const payload: BlogBackupData = {
+        articles: updatedArticles,
+        categories,
+        comments,
+        subscribers,
+        polls,
+        userPollVotes,
+        userReactions,
+      };
+      const res = await createManualCloudBackup(payload, `Publication article : ${savedArticle.title}`);
+      localStorage.setItem(STORAGE_KEYS.LAST_SYNC_TIMESTAMP, res.timestamp);
+      console.log('Article auto-synced to cloud:', res.backupId, `${updatedArticles.length} article(s)`);
+    } catch (e) {
+      console.warn('Background cloud sync warning:', e);
+    }
   };
 
-  const handleDeleteArticle = (articleId: string) => {
-    setArticles((prev) => prev.filter((a) => a.id !== articleId));
+  const handleDeleteArticle = async (articleId: string) => {
+    const currentArticles = articles.length > 0 
+      ? articles 
+      : (() => {
+          try {
+            const s = localStorage.getItem(STORAGE_KEYS.ARTICLES);
+            return s ? JSON.parse(s) : [];
+          } catch { return []; }
+        })();
+
+    const updatedArticles = currentArticles
+      .filter((a: Article) => !isObsoleteDemoArticle(a))
+      .filter((a: Article) => a.id !== articleId);
+
+    setArticles(updatedArticles);
+    localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(updatedArticles));
+
     if (activeArticleId === articleId) {
       handleBackToHome();
+    }
+
+    try {
+      const payload: BlogBackupData = {
+        articles: updatedArticles,
+        categories,
+        comments,
+        subscribers,
+        polls,
+        userPollVotes,
+        userReactions,
+      };
+      const res = await createManualCloudBackup(payload, `Suppression article ${articleId}`);
+      localStorage.setItem(STORAGE_KEYS.LAST_SYNC_TIMESTAMP, res.timestamp);
+      console.log('Deletion auto-synced to cloud:', res.backupId);
+    } catch (e) {
+      console.warn('Background cloud sync warning:', e);
     }
   };
 
@@ -558,18 +745,28 @@ export default function App() {
     setSubscribers((prev) => prev.filter((s) => s.id !== subscriberId));
   };
 
-  const handleRestoreData = (restored: BlogBackupData) => {
-    if (restored.articles && Array.isArray(restored.articles)) {
-      setArticles(restored.articles);
-      localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(restored.articles));
-    }
+  const handleRestoreData = async (restored: BlogBackupData) => {
+    if (!restored) return;
+
+    // Filter out obsolete mock articles
+    const cleanArticles = Array.isArray(restored.articles)
+      ? restored.articles.filter((a) => !isObsoleteDemoArticle(a))
+      : [];
+    setArticles(cleanArticles);
+    localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(cleanArticles));
+    restored.articles = cleanArticles;
+
     if (restored.categories && Array.isArray(restored.categories)) {
       setCategories(restored.categories);
       localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(restored.categories));
     }
     if (restored.comments && Array.isArray(restored.comments)) {
-      setComments(restored.comments);
-      localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(restored.comments));
+      const cleanComments = restored.comments.filter(
+        (c) => !isObsoleteDemoComment(c)
+      );
+      setComments(cleanComments);
+      localStorage.setItem(STORAGE_KEYS.COMMENTS, JSON.stringify(cleanComments));
+      restored.comments = cleanComments;
     }
     if (restored.subscribers && Array.isArray(restored.subscribers)) {
       setSubscribers(restored.subscribers);
@@ -587,6 +784,42 @@ export default function App() {
       setUserReactions(restored.userReactions);
       localStorage.setItem(STORAGE_KEYS.USER_REACTIONS, JSON.stringify(restored.userReactions));
     }
+
+    // Auto-sync the restored data directly to Firestore Cloud!
+    try {
+      const res = await createManualCloudBackup(restored, `Restauration sauvegarde et synchronisation (${cleanArticles.length} article(s))`);
+      localStorage.setItem(STORAGE_KEYS.LAST_SYNC_TIMESTAMP, res.timestamp);
+      console.log('Restored data successfully auto-synced to Firestore:', res.backupId);
+    } catch (e) {
+      console.error('Failed to auto-sync restored data to cloud', e);
+    }
+  };
+
+  const handleSyncToCloud = async (note = 'Synchronisation manuelle') => {
+    const currentArticles = articles.length > 0 
+      ? articles 
+      : (() => {
+          try {
+            const s = localStorage.getItem(STORAGE_KEYS.ARTICLES);
+            return s ? JSON.parse(s) : [];
+          } catch { return []; }
+        })();
+
+    const cleanArticles = currentArticles.filter((a: Article) => !isObsoleteDemoArticle(a));
+
+    const payload: BlogBackupData = {
+      articles: cleanArticles,
+      categories,
+      comments: comments.filter((c) => !isObsoleteDemoComment(c)),
+      subscribers,
+      polls,
+      userPollVotes,
+      userReactions,
+    };
+    const res = await createManualCloudBackup(payload, note);
+    localStorage.setItem(STORAGE_KEYS.LAST_SYNC_TIMESTAMP, res.timestamp);
+    console.log('Synchronized to Cloud:', res.backupId, `${cleanArticles.length} article(s)`);
+    return res;
   };
 
   return (
@@ -693,26 +926,42 @@ export default function App() {
             </div>
 
             {/* Articles Grid */}
-            {filteredArticles.length === 0 ? (
+            {isLoadingCloud && articles.length === 0 ? (
+              <div className="bg-white rounded-3xl border border-[#e5dbf7] p-12 text-center max-w-lg mx-auto shadow-xs">
+                <div className="w-16 h-16 rounded-3xl bg-purple-100 text-[#7c3aed] flex items-center justify-center mx-auto mb-4 border border-purple-200">
+                  <Sparkles className="w-8 h-8 animate-spin" />
+                </div>
+                <h4 className="font-['Comfortaa',cursive] text-lg font-bold text-slate-900 mb-2">
+                  Synchronisation avec le Cloud... ✨
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  Chargement des derniers articles publiés en direct...
+                </p>
+              </div>
+            ) : filteredArticles.length === 0 ? (
               <div className="bg-white rounded-3xl border border-[#e5dbf7] p-12 text-center max-w-lg mx-auto shadow-xs">
                 <div className="w-16 h-16 rounded-3xl bg-purple-100 text-[#7c3aed] flex items-center justify-center mx-auto mb-4 border border-purple-200">
                   <BookOpen className="w-8 h-8" />
                 </div>
                 <h4 className="font-['Comfortaa',cursive] text-lg font-bold text-slate-900 mb-2">
-                  Aucun article trouvé
+                  {articles.length === 0 ? 'Aucun article publié pour le moment' : 'Aucun article trouvé'}
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
-                  Aucun article ne correspond à votre recherche ou catégorie actuelle. Essayez d'autres mots-clés ou réinitialisez les filtres.
+                  {articles.length === 0
+                    ? "Aucun article n'est actuellement en ligne sur le blog. Revenez très vite pour découvrir nos actualités !"
+                    : "Aucun article ne correspond à votre recherche ou catégorie actuelle. Essayez d'autres mots-clés ou réinitialisez les filtres."}
                 </p>
-                <button
-                  onClick={() => {
-                    setSelectedCategory('all');
-                    setSearchQuery('');
-                  }}
-                  className="px-5 py-2.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
-                >
-                  Voir tous les articles
-                </button>
+                {articles.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setSearchQuery('');
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold text-xs shadow-xs transition-all cursor-pointer"
+                  >
+                    Voir tous les articles
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -785,7 +1034,10 @@ export default function App() {
         onLogout={handleAdminLogout}
         onPreviewArticle={handleOpenArticle}
         onRestoreData={handleRestoreData}
+        onSyncToCloud={handleSyncToCloud}
         polls={polls}
+        userPollVotes={userPollVotes}
+        userReactions={userReactions}
       />
     </div>
   );

@@ -26,6 +26,7 @@ import {
   CloudBackupRecord,
 } from '../lib/cloudBackupService';
 import { Article, CategoryItem, Comment, NewsletterSubscriber, Poll, UserPollVotes, UserReactions } from '../types';
+import { isObsoleteDemoArticle, isObsoleteDemoComment } from '../data/initialArticles';
 
 interface CloudSyncSectionProps {
   articles: Article[];
@@ -95,30 +96,55 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
     setBackupErrorMessage(null);
 
     try {
+      const getStorageArticles = (): Article[] => {
+        const keys = [
+          'sticky_kawaii_blog_articles_v2',
+          'sticky_kawaii_blog_articles',
+          'sticky_blog_articles',
+        ];
+        for (const k of keys) {
+          try {
+            const raw = localStorage.getItem(k);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+              }
+            }
+          } catch {}
+        }
+        return [];
+      };
+
+      const rawArticles = articles && articles.length > 0 ? articles : getStorageArticles();
+      const cleanArticles = rawArticles.filter((a: Article) => !isObsoleteDemoArticle(a));
+
+      const cleanComments = (comments || []).filter((c) => !isObsoleteDemoComment(c));
+
       const payload: BlogBackupData = {
-        articles,
-        categories,
-        comments,
-        subscribers,
-        polls,
-        userPollVotes,
-        userReactions,
+        articles: cleanArticles,
+        categories: categories || [],
+        comments: cleanComments,
+        subscribers: subscribers || [],
+        polls: polls || [],
+        userPollVotes: userPollVotes || {},
+        userReactions: userReactions || {},
       };
 
       const result = await createManualCloudBackup(
         payload,
-        backupNote.trim() || 'Sauvegarde manuelle administrateur'
+        backupNote.trim() || `Sauvegarde manuelle (${cleanArticles.length} article(s))`
       );
 
       setBackupSuccessMessage(
-        `Sauvegarde cloud réussie ! Identifiant : ${result.backupId}`
+        `Sauvegarde cloud réussie ! ${cleanArticles.length} article(s) publiés sur Firestore (ID: ${result.backupId}).`
       );
       setBackupNote('');
       // Refresh list
       await refreshBackups();
       setTimeout(() => {
         setBackupSuccessMessage(null);
-      }, 5000);
+      }, 6000);
     } catch (error: any) {
       console.error('Erreur lors de la sauvegarde cloud Firestore:', error);
       setBackupErrorMessage(
@@ -131,11 +157,11 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
   };
 
   // Restore a cloud backup
-  const handleRestoreBackup = (record: CloudBackupRecord) => {
+  const handleRestoreBackup = async (record: CloudBackupRecord) => {
     if (!onRestoreData) return;
     setRestoringId(record.id);
     try {
-      onRestoreData(record.data);
+      await onRestoreData(record.data);
       setRestoreSuccessMessage(
         `Restauration réussie depuis la sauvegarde du ${new Date(
           record.createdAt
@@ -211,7 +237,7 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
     setJsonFileSuccess(null);
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content) as BlogBackupData;
@@ -221,11 +247,29 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
           throw new Error('Le fichier ne semble pas être une sauvegarde de blog valide (articles manquants).');
         }
 
+        const cleanArticles = (data.articles || []).filter((a) => !isObsoleteDemoArticle(a));
+        const cleanComments = (data.comments || []).filter((c) => !isObsoleteDemoComment(c));
+        const cleanData: BlogBackupData = {
+          ...data,
+          articles: cleanArticles,
+          comments: cleanComments,
+        };
+
         if (onRestoreData) {
-          onRestoreData(data);
-          setJsonFileSuccess('Importation JSON réussie ! Le contenu du blog a été mis à jour.');
+          await onRestoreData(cleanData);
+          
+          // Auto-sync directly to Firestore Cloud so readers see it immediately
+          try {
+            await createManualCloudBackup(cleanData, `Importation JSON (${cleanArticles.length} article(s))`);
+            await refreshBackups();
+            setJsonFileSuccess(`Importation JSON réussie ! ${cleanArticles.length} article(s) restauré(s) ET synchronisé(s) en direct sur le Cloud pour vos visiteurs.`);
+          } catch (cloudErr) {
+            console.error('Erreur auto-sync cloud:', cloudErr);
+            setJsonFileSuccess(`Importation JSON réussie localement (${cleanArticles.length} article(s)). Pensez à cliquer sur "Lancer une sauvegarde Cloud" ci-dessus pour le public.`);
+          }
+
           if (fileInputRef.current) fileInputRef.current.value = '';
-          setTimeout(() => setJsonFileSuccess(null), 5000);
+          setTimeout(() => setJsonFileSuccess(null), 8000);
         }
       } catch (err: any) {
         console.error('Erreur lors de l\'import JSON:', err);
@@ -237,6 +281,53 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Synchronization Status Banner */}
+      <div className={`p-5 rounded-3xl border ${
+        articles.length > (latestBackup?.articlesCount ?? 0)
+          ? 'bg-amber-50/80 border-amber-300'
+          : 'bg-[#faf7fd] border-[#d8c7f3]'
+      } shadow-xs transition-all`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className={`w-3 h-3 rounded-full ${
+                articles.length > (latestBackup?.articlesCount ?? 0)
+                  ? 'bg-amber-500 animate-ping'
+                  : 'bg-emerald-500'
+              }`} />
+              <h4 className="text-sm font-extrabold text-[#3D2E39]">
+                {articles.length > (latestBackup?.articlesCount ?? 0)
+                  ? `Mise à jour requise : vous avez ${articles.length} article(s) dans votre espace, mais seulement ${latestBackup?.articlesCount ?? 0} en ligne sur le Cloud.`
+                  : `Le Cloud est à jour : ${latestBackup?.articlesCount ?? 0} article(s) en ligne pour vos visiteurs.`}
+              </h4>
+            </div>
+            <p className="text-xs text-slate-600">
+              {articles.length > (latestBackup?.articlesCount ?? 0)
+                ? "⚠️ Vos visiteurs ne voient pas encore vos nouveaux articles ! Cliquez sur 'Publier tout sur le Cloud' ci-contre pour synchroniser immédiatement."
+                : `Dernière synchronisation réussie le ${latestBackup ? new Date(latestBackup.timestamp).toLocaleString('fr-FR') : 'inconnue'}.`}
+            </p>
+          </div>
+
+          <button
+            onClick={handleTriggerBackup}
+            disabled={isBackingUp}
+            className="px-5 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 bg-[#4C2882] hover:bg-[#3D206A] text-white shrink-0 cursor-pointer"
+          >
+            {isBackingUp ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Publication en cours...</span>
+              </>
+            ) : (
+              <>
+                <CloudUpload className="w-4 h-4" />
+                <span>Publier tout sur le Cloud ({articles.length} article{articles.length > 1 ? 's' : ''})</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
       {/* Top Banner Card: Cloud Status & Manual Trigger */}
       <div className="p-6 rounded-3xl bg-gradient-to-br from-[#fcfaff] to-[#f4effc] border border-[#d8c7f3] shadow-xs">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
@@ -253,7 +344,7 @@ export const CloudSyncSection: React.FC<CloudSyncSectionProps> = ({
               vous pouvez déclencher manuellement une sauvegarde complète de tout le contenu
               (articles, catégories, commentaires, abonnés) dans votre base Firestore.
               <span className="font-semibold text-[#4C2882] ml-1">
-                Aucune sauvegarde automatique n'est lancée en arrière-plan : vous gardez le contrôle total.
+                Toutes les modifications et imports sont automatiquement synchronisés sur le Cloud.
               </span>
             </p>
           </div>
