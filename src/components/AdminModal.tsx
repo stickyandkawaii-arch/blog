@@ -154,9 +154,11 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const [loginError, setLoginError] = useState('');
   
   // Navigation tabs in studio
-  const [currentTab, setCurrentTab] = useState<'articles' | 'editor' | 'categories' | 'comments' | 'subscribers' | 'stats' | 'cloud'>('articles');
+  const [currentTab, setCurrentTab] = useState<'articles' | 'editor' | 'categories' | 'comments' | 'subscribers' | 'stats' | 'cloud' | 'sumup'>('articles');
   const [editorMode, setEditorMode] = useState<'create' | 'edit'>('create');
   const [activeArticleId, setActiveArticleId] = useState<string | null>(null);
+  const [selectedSumUpArticleId, setSelectedSumUpArticleId] = useState<string>('');
+  const [copiedSumUp, setCopiedSumUp] = useState<boolean>(false);
 
   // Article filters in list
   const [searchFilter, setSearchFilter] = useState('');
@@ -1179,6 +1181,19 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                 <Cloud className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Sauvegarde Cloud</span>
                 <span className="sm:hidden">Cloud</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentTab('sumup')}
+                className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  currentTab === 'sumup'
+                    ? 'bg-white text-[#4C2882] shadow-xs'
+                    : 'text-[#3D2E39] hover:text-[#4C2882]'
+                }`}
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Widget SumUp</span>
+                <span className="sm:hidden">SumUp</span>
               </button>
             </div>
 
@@ -3380,6 +3395,225 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                   userReactions={userReactions}
                   onRestoreData={onRestoreData}
                 />
+              </div>
+            )}
+
+            {/* SumUp Widget Integration Tab (No HTML approach) */}
+            {currentTab === 'sumup' && (
+              <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in">
+                {/* Header Bar */}
+                <div className="bg-white p-4 sm:p-6 rounded-3xl border border-[#e5dbf7] flex items-center justify-between gap-4 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setCurrentTab('articles')}
+                      className="p-2 rounded-xl text-slate-400 hover:text-[#4C2882] hover:bg-[#f4f0fa] transition-colors cursor-pointer"
+                      title="Retour à la liste"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-bold text-[#3D2E39] font-heading leading-tight flex items-center gap-2">
+                        <ShoppingBag className="w-5 h-5 text-[#7c3aed]" />
+                        Intégration SumUp (Méthode Image + Texte + Bouton)
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Comme SumUp ne permet pas d'insérer du code HTML brut, utilisez ce kit prêt à copier pour créer votre bloc d'article en 1 minute.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instructions Box */}
+                <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 p-6 rounded-3xl border border-[#e5dbf7] space-y-4">
+                  <h3 className="text-base font-bold text-[#3D2E39] font-heading flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#7c3aed]" />
+                    Comment l'ajouter sur SumUp sans HTML :
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-slate-700">
+                    <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 shadow-xs space-y-1.5">
+                      <span className="w-6 h-6 rounded-full bg-[#7c3aed] text-white flex items-center justify-center font-bold text-xs">1</span>
+                      <p className="font-bold text-slate-900">Section Image + Texte</p>
+                      <p className="text-slate-600">Sur votre éditeur SumUp, ajoutez une section de type <strong>"Image avec texte"</strong> ou <strong>"Bannière"</strong>.</p>
+                    </div>
+                    <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 shadow-xs space-y-1.5">
+                      <span className="w-6 h-6 rounded-full bg-[#7c3aed] text-white flex items-center justify-center font-bold text-xs">2</span>
+                      <p className="font-bold text-slate-900">Copier-Coller les éléments</p>
+                      <p className="text-slate-600">Utilisez les boutons ci-dessous pour copier le titre, le résumé, l'image et le lien du blog en un clic.</p>
+                    </div>
+                    <div className="bg-white/80 p-4 rounded-2xl border border-purple-100 shadow-xs space-y-1.5">
+                      <span className="w-6 h-6 rounded-full bg-[#7c3aed] text-white flex items-center justify-center font-bold text-xs">3</span>
+                      <p className="font-bold text-slate-900">Lien du bouton</p>
+                      <p className="text-slate-600">Configurez le bouton de la section SumUp pour pointer vers le blog avec le texte <em>"Lire l'article sur le blog"</em>.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Article Selector & Content Kit */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Left: Fields to copy */}
+                  <div className="bg-white p-6 rounded-3xl border border-[#e5dbf7] shadow-xs space-y-5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        Sélectionner l'article
+                      </label>
+                      <select
+                        value={selectedSumUpArticleId}
+                        onChange={(e) => setSelectedSumUpArticleId(e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl bg-[#faf8fc] border border-[#e5dbf7] text-slate-800 text-sm focus:outline-hidden focus:ring-2 focus:ring-[#7c3aed]"
+                      >
+                        <option value="">✨ Article mis à l'honneur actuel (par défaut)</option>
+                        {articles.filter(a => a.status === 'published').map((art) => (
+                          <option key={art.id} value={art.id}>
+                            📄 {art.title} {art.isFeatured ? '⭐ (Mis à l’honneur)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(() => {
+                      const target = articles.find(a => a.id === selectedSumUpArticleId) || articles.find(a => a.isFeatured) || articles[0];
+                      if (!target) return <p className="text-slate-400 text-xs">Aucun article trouvé.</p>;
+
+                      return (
+                        <div className="space-y-4">
+                          {/* Title Copy */}
+                          <div className="p-4 rounded-2xl bg-[#faf8fc] border border-purple-100 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-700 uppercase">1. Titre à coller dans SumUp</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(target.title);
+                                  setCopiedSumUp(true);
+                                  setTimeout(() => setCopiedSumUp(false), 2500);
+                                }}
+                                className="px-3 py-1.5 bg-[#7c3aed] text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>{copiedSumUp ? 'Copié !' : 'Copier le titre'}</span>
+                              </button>
+                            </div>
+                            <p className="text-sm font-bold text-slate-900 bg-white p-3 rounded-xl border border-purple-50">
+                              {target.title}
+                            </p>
+                          </div>
+
+                          {/* Summary Copy */}
+                          <div className="p-4 rounded-2xl bg-[#faf8fc] border border-purple-100 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-700 uppercase">2. Texte / Résumé à coller</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(target.summary);
+                                  setCopiedSumUp(true);
+                                  setTimeout(() => setCopiedSumUp(false), 2500);
+                                }}
+                                className="px-3 py-1.5 bg-[#7c3aed] text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copier le résumé</span>
+                              </button>
+                            </div>
+                            <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-purple-50 leading-relaxed">
+                              {target.summary}
+                            </p>
+                          </div>
+
+                          {/* Image URL Copy */}
+                          <div className="p-4 rounded-2xl bg-[#faf8fc] border border-purple-100 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-700 uppercase">3. Image de couverture</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(target.coverImage);
+                                  setCopiedSumUp(true);
+                                  setTimeout(() => setCopiedSumUp(false), 2500);
+                                }}
+                                className="px-3 py-1.5 bg-[#7c3aed] text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copier l'URL image</span>
+                              </button>
+                            </div>
+                            <p className="text-[11px] font-mono text-slate-500 bg-white p-2 rounded-xl border border-purple-50 truncate">
+                              {target.coverImage}
+                            </p>
+                          </div>
+
+                          {/* Link URL & Button Text */}
+                          <div className="p-4 rounded-2xl bg-[#faf8fc] border border-purple-100 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-slate-700 uppercase">4. Lien du bouton SumUp</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('https://blog.stickyandkawaii.eu');
+                                  setCopiedSumUp(true);
+                                  setTimeout(() => setCopiedSumUp(false), 2500);
+                                }}
+                                className="px-3 py-1.5 bg-[#7c3aed] text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copier le lien du blog</span>
+                              </button>
+                            </div>
+                            <div className="flex items-center justify-between text-xs bg-white p-3 rounded-xl border border-purple-50 text-slate-800">
+                              <span><strong>URL :</strong> https://blog.stickyandkawaii.eu</span>
+                              <span className="text-purple-600 font-bold">Bouton : "Lire l'article"</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Right: Live Preview */}
+                  <div className="bg-white p-6 rounded-3xl border border-[#e5dbf7] shadow-xs space-y-4">
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <Eye className="w-4 h-4 text-[#7c3aed]" />
+                      Aperçu du rendu final sur SumUp
+                    </h4>
+                    <div className="p-4 bg-[#faf8fc] rounded-2xl border border-purple-100 flex items-center justify-center">
+                      {(() => {
+                        const target = articles.find(a => a.id === selectedSumUpArticleId) || articles.find(a => a.isFeatured) || articles[0];
+                        if (!target) return <p className="text-slate-400 text-xs">Aucun article</p>;
+                        return (
+                          <div className="bg-white rounded-3xl border border-[#e5dbf7] p-6 shadow-md w-full max-w-md space-y-4">
+                            <div className="flex items-center justify-between">
+                              <span className="px-3 py-1 rounded-full bg-[#7c3aed] text-white text-[10px] font-bold uppercase tracking-wider">
+                                ✨ À la une
+                              </span>
+                              <span className="px-3 py-1 rounded-full bg-purple-50 text-[#7c3aed] text-xs font-bold border border-purple-100">
+                                {target.category}
+                              </span>
+                            </div>
+                            <img
+                              src={target.coverImage}
+                              alt={target.title}
+                              className="w-full h-40 object-cover rounded-2xl"
+                              referrerPolicy="no-referrer"
+                            />
+                            <h3 className="font-['Comfortaa',cursive] text-lg font-bold text-slate-900 leading-snug">
+                              {target.title}
+                            </h3>
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                              {target.summary}
+                            </p>
+                            <div className="pt-2">
+                              <div className="w-full py-2.5 rounded-xl bg-[#7c3aed] text-white font-bold text-xs text-center shadow-sm">
+                                Lire l'article sur le blog →
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                </div>
               </div>
             )}
 
