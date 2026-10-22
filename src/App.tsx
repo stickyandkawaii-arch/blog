@@ -330,30 +330,37 @@ export default function App() {
     }
   }, [userPollVotes]);
 
-  // Support hash & query navigation if present
+  // Support clean query parameter navigation & legacy hash
   useEffect(() => {
     const handleUrlState = () => {
-      const hash = window.location.hash.replace('#', '');
       const params = new URLSearchParams(window.location.search);
+      const articleParam = params.get('article');
+      const hash = window.location.hash.replace('#', '');
 
       // Check admin trigger via URL
       if (hash === 'admin' || params.get('admin') === 'true') {
         setIsAdminModalOpen(true);
       }
 
-      if (hash.startsWith('article-')) {
-        const id = hash.replace('article-', '');
-        const target = articles.find((a) => a.id === id || a.slug === id);
+      const targetId = articleParam || (hash.startsWith('article-') ? hash.replace('article-', '') : null);
+      if (targetId) {
+        const target = articles.find((a) => a.id === targetId || a.slug === targetId);
         if (target) {
           setActiveArticleId(target.id);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+      } else if (!articleParam && !hash.startsWith('article-')) {
+        setActiveArticleId(null);
       }
     };
 
     handleUrlState();
+    window.addEventListener('popstate', handleUrlState);
     window.addEventListener('hashchange', handleUrlState);
-    return () => window.removeEventListener('hashchange', handleUrlState);
+    return () => {
+      window.removeEventListener('popstate', handleUrlState);
+      window.removeEventListener('hashchange', handleUrlState);
+    };
   }, [articles]);
 
   // Helper to determine if an article is publicly visible (published or scheduled date reached)
@@ -454,13 +461,19 @@ export default function App() {
   // Handlers
   const handleOpenArticle = (article: Article) => {
     setActiveArticleId(article.id);
-    window.location.hash = `article-${article.id}`;
+    const url = new URL(window.location.href);
+    url.searchParams.set('article', article.id);
+    url.hash = '';
+    window.history.pushState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToHome = () => {
     setActiveArticleId(null);
-    window.location.hash = '';
+    const url = new URL(window.location.href);
+    url.searchParams.delete('article');
+    url.hash = '';
+    window.history.pushState({}, '', url.toString());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

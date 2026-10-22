@@ -25,8 +25,8 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({ article }) => {
 
   // Generate canonical or current share URL
   const shareUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}${window.location.pathname}#article-${article.id}`
-    : `https://blog.stickyandkawaii.eu/#article-${article.id}`;
+    ? `${window.location.origin}${window.location.pathname}?article=${article.id}`
+    : `https://blog.stickyandkawaii.eu/?article=${article.id}`;
 
   const shareTitle = `${article.title} • Blog Sticky & Kawaii ✨`;
   const shareSummary = article.summary || 'Découvrez cet article créatif et mignon sur le blog officiel de Sticky & Kawaii !';
