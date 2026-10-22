@@ -510,7 +510,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
         metaTitle: metaTitle.trim() || title.trim(),
         metaDescription: metaDescription.trim() || summary.trim(),
         focusKeyword: focusKeyword.trim(),
-        canonicalUrl: `https://blog.stickyandkawaii.eu/#article-${generatedSlug}`,
+        canonicalUrl: `https://blog.stickyandkawaii.eu/?article=${generatedSlug}`,
       },
       pollId: selectedPollId || undefined,
     };
@@ -782,7 +782,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
       checks.push({
         label: 'Mot-clé dans l’URL personnalisée',
         passed: kwInSlug,
-        tip: `blog.stickyandkawaii.eu/#article-${currentSlug}`
+        tip: `blog.stickyandkawaii.eu/?article=${currentSlug}`
       });
     }
 
@@ -2298,7 +2298,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                             URL personnalisée (Slug)
                           </label>
                           <div className="flex items-center rounded-xl bg-[#faf8fc] border border-[#e5dbf7] overflow-hidden px-3 py-2 text-xs">
-                            <span className="text-slate-400 shrink-0">#article-</span>
+                            <span className="text-slate-400 shrink-0">?article=</span>
                             <input
                               type="text"
                               value={customSlug}
@@ -3676,7 +3676,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                       if (artId) {
                         const target = articles.find(a => a.id === artId);
                         if (target) {
-                          setLinkUrl(`#article-${target.id}`);
+                          setLinkUrl(`?article=${target.id}`);
                           if (!linkText || linkText === 'Mon lien') {
                             setLinkText(target.title);
                           }
@@ -3705,7 +3705,7 @@ Partagez un conseil pratique ici avec des étapes claires et simples.`);
                       setLinkUrl(e.target.value);
                       setLinkTargetArticleId('');
                     }}
-                    placeholder="https://example.com ou #article-id"
+                    placeholder="https://example.com ou ?article=id"
                     className="w-full px-4 py-2.5 rounded-2xl bg-[#faf8fc] border border-[#e5dbf7] text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-[#7c3aed]"
                   />
                 </div>

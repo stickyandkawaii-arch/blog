@@ -304,36 +304,9 @@ export const ArticleView: React.FC<ArticleViewProps> = ({
             </span>
           </div>
 
-          <h1 className="font-['Comfortaa',cursive] text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight mb-4">
+          <h1 className="font-['Comfortaa',cursive] text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight mb-6">
             {article.title}
           </h1>
-
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal bg-[#fcfaff] p-4 rounded-2xl border border-[#f0e8fc]">
-            {article.summary}
-          </p>
-        </div>
-
-        {/* Author Badge */}
-        <div className="flex items-center gap-3.5 py-4 border-y border-[#f4f0fa] mb-8">
-          <img
-            src={article.author.avatar}
-            alt={article.author.name}
-            className="w-12 h-12 rounded-full border-2 border-[#7c3aed]/30 object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="font-bold text-sm text-slate-800">
-                {article.author.name}
-              </h4>
-              <span className="px-2 py-0.5 rounded-md bg-purple-100 text-[#7c3aed] text-[10px] font-bold uppercase tracking-wider">
-                Officiel
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              {article.author.role} • Sticky and Kawaii Studio
-            </p>
-          </div>
         </div>
 
         {/* Main Cover Image */}
