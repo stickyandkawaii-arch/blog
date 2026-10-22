@@ -89,7 +89,17 @@ export default function App() {
     } catch (e) {
       console.error('Failed to load articles from storage', e);
     }
-    return [];
+    const defaultArticles = INITIAL_ARTICLES
+      .filter((art) => !isObsoleteDemoArticle(art))
+      .map((art) => ({
+        ...art,
+        author: {
+          ...art.author,
+          name: art.author?.name === 'Sticky' ? 'Karine' : (art.author?.name || 'Karine'),
+        },
+      }));
+    localStorage.setItem(STORAGE_KEYS.ARTICLES, JSON.stringify(defaultArticles));
+    return defaultArticles;
   });
 
   // Comments state - Permanently clean mock comments
